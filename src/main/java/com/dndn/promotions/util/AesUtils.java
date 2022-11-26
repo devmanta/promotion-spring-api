@@ -21,7 +21,6 @@ public class AesUtils {
     private String iv;
 //    private String iv = "0123456789abcdef"; // 16byte
 
-    // 암호화
     public String encryptAES256(String text) throws Exception {
         Cipher cipher = Cipher.getInstance(alg);
         SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(), "AES");
@@ -32,7 +31,6 @@ public class AesUtils {
         return Base64.getEncoder().encodeToString(encrypted);
     }
 
-    // 복호화
     public String decryptAES256(String cipherText) throws Exception {
         Cipher cipher = Cipher.getInstance(alg);
         SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(), "AES");
