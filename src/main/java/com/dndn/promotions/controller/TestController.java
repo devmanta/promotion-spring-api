@@ -11,7 +11,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.poifs.crypt.EncryptionInfo;
@@ -21,7 +20,6 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -72,15 +70,22 @@ public class TestController {
             workbook.write(fileOut);
             fileOut.close();
 
-            POIFSFileSystem fs = new POIFSFileSystem();
-            EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile);
-            Encryptor enc = info.getEncryptor();
-            enc.confirmPassword("1234");
-            OPCPackage opc = OPCPackage.open(file, PackageAccess.READ_WRITE);
-            OutputStream os = enc.getDataStream(fs);
-            opc.save(os);
-            FileOutputStream fos = new FileOutputStream(file);
-            fs.writeFilesystem(fos);
+            try (POIFSFileSystem fs = new POIFSFileSystem()) {
+
+                EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile);
+                Encryptor encryptor = info.getEncryptor();
+                encryptor.confirmPassword("1234");
+
+                try (OPCPackage opc = OPCPackage.open(file, PackageAccess.READ_WRITE);
+                    OutputStream os = encryptor.getDataStream(fs)) {
+                    opc.save(os);
+                }
+
+                // Write out the encrypted version
+                try (FileOutputStream fos = new FileOutputStream(file)) {
+                    fs.writeFilesystem(fos);
+                }
+            }
 
             InputStream in = new FileInputStream(file);
             file.delete();
