@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dndn.promotions.repository.PromotionRepository">
+
+
+  <select id="getUser" resultType="com.dndn.promotions.model.UserVO" parameterType="com.dndn.promotions.model.UserVO">
+    SELECT id, contact, draw_cnt, kakao_share_cnt
+    FROM devmanta.users
+    <where>
+        <if test="contact != null">
+            AND contact = #{contact}
+        </if>
+        <if test="id != null">
+            AND id = #{id}
+        </if>
+    </where>
+  </select>
+
+
+</mapper>
