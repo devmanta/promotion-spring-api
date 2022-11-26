@@ -64,7 +64,7 @@ public class TestController {
                 row.createCell(2).setCellValue(t.getCreateDate().toString());
             }
 
-            File file = new File("/Users/heejin/z.xlsx");
+            File file = new File(System.getProperty("user.dir") + "/z.xlsx");
             file.createNewFile();
             OutputStream fileOut = new FileOutputStream(file);
             workbook.write(fileOut);
