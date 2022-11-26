@@ -1,16 +1,16 @@
 package com.dndn.promotions.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserDrawResultVO extends UserVO {
 
     private int amount;
-
-    UserDrawResultVO(Integer id, String contact, Integer drawCnt) {
-        super(id, contact, drawCnt);
-    }
 
 }
