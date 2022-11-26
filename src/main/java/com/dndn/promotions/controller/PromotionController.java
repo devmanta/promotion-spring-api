@@ -23,26 +23,28 @@ public class PromotionController {
     private final PromotionService promotionService;
 
     @GetMapping(value = {"/generator"})
-    public ResponseEntity<Map<String, String>> cryptoGenerator(HttpServletRequest servletRequest) {
-        HttpSession session = servletRequest.getSession();
+    public ResponseEntity<Map<String, String>> cryptoGenerator(HttpServletRequest request) {
+        HttpSession session = request.getSession();
 
         Map<String, String> publicKeyMap = CryptoGenerator.generatePairKey(session);
         return ResponseEntity.ok(publicKeyMap);
     }
 
     @PostMapping(value = "/user")
-    public ResponseEntity<UserVO> insertNewUser(@RequestBody UserVO userVO) throws Exception {
+    public ResponseEntity<UserVO> insertNewUser(HttpServletRequest request, @RequestBody UserVO userVO) throws Exception {
+        String decryptedContact = CryptoGenerator.decryptRSA(request.getSession(), userVO.getContact());
+        userVO.setContact(decryptedContact);
+
         promotionService.insertUser(userVO);
         return ResponseEntity.ok(userVO);
     }
 
     @GetMapping(value = "/user/{contact}")
-    public ResponseEntity<UserVO> getUserByContact(@PathVariable String contact) throws Exception {
-        //TODO contact 암/복호화
-        UserVO user = UserVO.builder().contact(contact).build();
+    public ResponseEntity<UserVO> getUserByContact(HttpServletRequest request, @PathVariable String contact) throws Exception {
+        String decryptedContact = CryptoGenerator.decryptRSA(request.getSession(), contact);
+
+        UserVO user = UserVO.builder().contact(decryptedContact).build();
         return ResponseEntity.ok(promotionService.getUser(user));
     }
-
-
 
 }
