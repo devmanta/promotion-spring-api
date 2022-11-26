@@ -15,6 +15,5 @@ public class UserVO {
     private Integer id;
     private String contact;
     private Integer drawCnt;
-    private Integer kakaoShareCnt;
 
 }

@@ -7,7 +7,7 @@
 
 
     <select id="getUser" resultType="com.dndn.promotions.model.UserVO" parameterType="com.dndn.promotions.model.UserVO">
-        SELECT id, contact, draw_cnt, kakao_share_cnt
+        SELECT id, contact, draw_cnt
         FROM devmanta.users
         <where>
             <if test="contact != null">
