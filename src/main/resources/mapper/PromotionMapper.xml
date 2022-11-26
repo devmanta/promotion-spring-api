@@ -24,4 +24,11 @@
       VALUES (#{contact})
     </insert>
 
+    <select id="getDrawResult" resultType="com.dndn.promotions.model.UserDrawResultVO">
+        SELECT u.*, d.amount
+        FROM devmanta.users u
+             JOIN devmanta.draw_result dr ON u.id = dr.user_id
+             JOIN devmanta.draw d ON dr.draw_id = d.id
+    </select>
+
 </mapper>
