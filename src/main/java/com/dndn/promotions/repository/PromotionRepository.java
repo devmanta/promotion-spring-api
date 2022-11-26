@@ -10,5 +10,6 @@ import org.apache.ibatis.annotations.Mapper;
 public interface PromotionRepository {
 
     UserVO getUser(UserVO userVO);
+    void insertUser(UserVO userVO);
 
 }

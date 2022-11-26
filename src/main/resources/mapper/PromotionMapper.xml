@@ -6,18 +6,22 @@
 <mapper namespace="com.dndn.promotions.repository.PromotionRepository">
 
 
-  <select id="getUser" resultType="com.dndn.promotions.model.UserVO" parameterType="com.dndn.promotions.model.UserVO">
-    SELECT id, contact, draw_cnt, kakao_share_cnt
-    FROM devmanta.users
-    <where>
-        <if test="contact != null">
-            AND contact = #{contact}
-        </if>
-        <if test="id != null">
-            AND id = #{id}
-        </if>
-    </where>
-  </select>
+    <select id="getUser" resultType="com.dndn.promotions.model.UserVO" parameterType="com.dndn.promotions.model.UserVO">
+        SELECT id, contact, draw_cnt, kakao_share_cnt
+        FROM devmanta.users
+        <where>
+            <if test="contact != null">
+                AND contact = #{contact}
+            </if>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+        </where>
+    </select>
 
+    <insert id="insertUser" parameterType="com.dndn.promotions.model.UserVO" useGeneratedKeys="true" keyProperty="id">
+      INSERT INTO devmanta.users(contact)
+      VALUES (#{contact})
+    </insert>
 
 </mapper>

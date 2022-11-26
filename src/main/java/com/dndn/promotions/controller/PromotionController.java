@@ -20,10 +20,11 @@ public class PromotionController {
 
     private final PromotionService promotionService;
 
-//    @PostMapping(value = "/user")
-//    public ResponseEntity<UserVO> getUser(@RequestBody UserVO userVO) {
-//        return ResponseEntity.ok(promotionService.getUser(userVO));
-//    }
+    @PostMapping(value = "/user")
+    public ResponseEntity<UserVO> getUser(@RequestBody UserVO userVO) {
+        promotionService.insertUser(userVO);
+        return ResponseEntity.ok(userVO);
+    }
 
     @GetMapping(value = "/user/{contact}")
     public ResponseEntity<UserVO> getUser(@PathVariable String contact) {

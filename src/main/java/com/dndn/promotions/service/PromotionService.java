@@ -17,4 +17,8 @@ public class PromotionService {
         return promotionRepository.getUser(userVo);
     }
 
+    public void insertUser(UserVO userVO) {
+        promotionRepository.insertUser(userVO);
+    }
+
 }
