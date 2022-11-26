@@ -71,7 +71,7 @@ public class PromotionController {
     @GetMapping(value = "/excel")
     public ResponseEntity<InputStreamResource> downloadExcelForDrawResult() {
         try(Workbook workbook = new XSSFWorkbook()) {
-            Sheet sheet = workbook.createSheet("게시판글들");
+            Sheet sheet = workbook.createSheet("당첨결과");
             int rowNo = 0;
 
             Row headerRow = sheet.createRow(rowNo++);

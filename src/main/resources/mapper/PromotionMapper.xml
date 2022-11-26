@@ -31,4 +31,27 @@
              JOIN devmanta.draw d ON dr.draw_id = d.id
     </select>
 
+    <update id="updateUserDrawCntById" parameterType="com.dndn.promotions.model.UserVO">
+        UPDATE devmanta.users
+        SET draw_cnt = #{drawCnt}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteDrawResultByUserId">
+        DELETE FROM devmanta.draw_result
+        WHERE user_id = #{userId}
+    </delete>
+
+    <select id="getDrawtById" resultType="com.dndn.promotions.model.DrawVO">
+        SELECT id, amount, total, winner_cnt
+        FROM devmanta.draw
+        WHERE id = #{id}
+    </select>
+
+    <update id="updateDrawWinnerCntById" parameterType="com.dndn.promotions.model.DrawVO">
+        UPDATE devmanta.draw
+        SET winner_cnt = #{winnerCnt}
+        WHERE id = #{id}
+    </update>
+
 </mapper>
