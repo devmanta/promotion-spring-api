@@ -1,14 +1,13 @@
 package com.dndn.promotions.repository;
 
 import com.dndn.promotions.model.TestEntity;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.springframework.stereotype.Repository;
 
 @Mapper
 public interface TestRepository {
 
-    @Select("select * from devmanta.test")
-    TestEntity testSelect();
+    List<TestEntity> testSelect();
 
 }
