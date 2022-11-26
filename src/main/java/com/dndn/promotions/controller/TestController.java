@@ -2,14 +2,29 @@ package com.dndn.promotions.controller;
 
 import com.dndn.promotions.model.TestEntity;
 import com.dndn.promotions.repository.TestRepository;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackageAccess;
+import org.apache.poi.poifs.crypt.EncryptionInfo;
+import org.apache.poi.poifs.crypt.EncryptionMode;
+import org.apache.poi.poifs.crypt.Encryptor;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,8 +48,8 @@ public class TestController {
     }
 
     @GetMapping(value = "/excel")
-    public void downloadExcel(HttpServletResponse response) {
-        try(Workbook workbook = new XSSFWorkbook()){
+    public ResponseEntity<InputStreamResource> downloadExcel(HttpServletResponse response) {
+        try(Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("게시판글들");
             int rowNo = 0;
 
@@ -44,21 +59,42 @@ public class TestController {
             headerRow.createCell(2).setCellValue("날짜");
 
             List<TestEntity> list = testRepository.testSelect();
-            for (TestEntity t : list) {
+            for(TestEntity t : list) {
                 Row row = sheet.createRow(rowNo++);
                 row.createCell(0).setCellValue(t.getNo());
                 row.createCell(1).setCellValue(t.getName());
                 row.createCell(2).setCellValue(t.getCreateDate().toString());
             }
 
-            response.setContentType("ms-vnd/excel");
-            response.setHeader("Content-Disposition", "attachment;filename=test.xlsx");
+            File file = new File("/Users/heejin/z.xlsx");
+            file.createNewFile();
+            OutputStream fileOut = new FileOutputStream(file);
+            workbook.write(fileOut);
+            fileOut.close();
 
-            workbook.write(response.getOutputStream());
+            POIFSFileSystem fs = new POIFSFileSystem();
+            EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile);
+            Encryptor enc = info.getEncryptor();
+            enc.confirmPassword("1234");
+            OPCPackage opc = OPCPackage.open(file, PackageAccess.READ_WRITE);
+            OutputStream os = enc.getDataStream(fs);
+            opc.save(os);
+            FileOutputStream fos = new FileOutputStream(file);
+            fs.writeFilesystem(fos);
+
+            InputStream in = new FileInputStream(file);
+            file.delete();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "attachment;filename=test.xlsx");
+
+            return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(new InputStreamResource(in));
         } catch(Exception e) {
             log.error("excelDownload ERROR", e);
+            return null;
         }
-
     }
-
 }
