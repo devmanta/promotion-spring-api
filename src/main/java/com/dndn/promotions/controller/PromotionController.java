@@ -2,6 +2,10 @@ package com.dndn.promotions.controller;
 
 import com.dndn.promotions.model.UserVO;
 import com.dndn.promotions.service.PromotionService;
+import com.dndn.promotions.util.CryptoGenerator;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +21,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class PromotionController {
 
     private final PromotionService promotionService;
+
+    @GetMapping(value = {"/generator"})
+    public ResponseEntity<Map<String, String>> cryptoGenerator(HttpServletRequest servletRequest) {
+        HttpSession session = servletRequest.getSession();
+
+        Map<String, String> publicKeyMap = CryptoGenerator.generatePairKey(session);
+        return ResponseEntity.ok(publicKeyMap);
+    }
 
     @PostMapping(value = "/user")
     public ResponseEntity<UserVO> insertNewUser(@RequestBody UserVO userVO) throws Exception {
