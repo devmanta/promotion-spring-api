@@ -5,7 +5,6 @@
 
 <mapper namespace="com.dndn.promotions.repository.PromotionRepository">
 
-
     <select id="getUser" resultType="com.dndn.promotions.model.UserVO" parameterType="com.dndn.promotions.model.UserVO">
         SELECT id, contact, draw_cnt
         FROM devmanta.users

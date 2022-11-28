@@ -89,6 +89,11 @@ public class CryptoGenerator {
         String returnValue = "";
         PrivateKey privateKey = (PrivateKey) session.getAttribute("utPrivateKey");
 
+        System.out.println("==================================================================================================================");
+        System.out.println("여기가 null 인가요 ?");
+        System.out.println("privateKey = " + session.getAttribute("utPrivateKey"));
+        System.out.println("==================================================================================================================");
+
         try {
             Cipher cipher = Cipher.getInstance("RSA"); //암호문이 어떤 암호화 방식으로 전달되었는지
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
