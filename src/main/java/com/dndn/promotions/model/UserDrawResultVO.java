@@ -1,5 +1,6 @@
 package com.dndn.promotions.model;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ import lombok.ToString;
 @ToString
 public class UserDrawResultVO extends UserVO {
 
+    @ApiModelProperty(notes = "당첨금액")
     private int amount;
 
 }

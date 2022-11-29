@@ -19,6 +19,7 @@ public class UserVO {
 
     private Integer id;
     private String contact;
+    @ApiModelProperty(notes = "응모횟수")
     private Integer drawCnt;
 
 }

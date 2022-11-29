@@ -10,12 +10,11 @@ import javax.crypto.spec.SecretKeySpec;
 
 @Component
 public class AesUtils {
-    //https://www.devglan.com/online-tools/jasypt-online-encryption-decryption
 
     private final String alg = "AES/CBC/PKCS5Padding";
     @Value("${dndn.aes.key}")
     private String key;
-//    private final String key = "abcdefghabcdefghabcdefghabcdefgh"; // 32byte
+//    private final String key = "pugctaxutvrbqsxlaidviyoizveape"; // 32byte
 
     @Value("${dndn.aes.iv}")
     private String iv;
