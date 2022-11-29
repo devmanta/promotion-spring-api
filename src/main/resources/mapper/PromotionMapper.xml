@@ -5,7 +5,23 @@
 
 <mapper namespace="com.dndn.promotions.repository.PromotionRepository">
 
-    <select id="getUser" resultType="com.dndn.promotions.model.UserVO" parameterType="com.dndn.promotions.model.UserVO">
+    <resultMap id="userVO" type="com.dndn.promotions.model.UserVO">
+        <result column="id" property="id"/>
+        <result column="contact" property="contact"/>
+        <result column="draw_cnt" property="drawCnt"/>
+    </resultMap>
+    <resultMap id="userDrawResultVO" extends="userVO" type="com.dndn.promotions.model.UserDrawResultVO">
+        <result column="amount" property="amount"/>
+    </resultMap>
+
+    <resultMap id="drawVO" type="com.dndn.promotions.model.DrawVO">
+        <result column="id" property="id"/>
+        <result column="amount" property="amount"/>
+        <result column="total" property="total"/>
+        <result column="winner_cnt" property="winnerCnt"/>
+    </resultMap>
+
+    <select id="getUser" resultMap="userVO" parameterType="com.dndn.promotions.model.UserVO">
         SELECT id, contact, draw_cnt
         FROM devmanta.users
         <where>
@@ -23,16 +39,25 @@
       VALUES (#{contact})
     </insert>
 
-    <select id="getDrawResult" resultType="com.dndn.promotions.model.UserDrawResultVO">
+    <select id="getDrawResult" resultMap="userDrawResultVO">
         SELECT u.*, d.amount
         FROM devmanta.users u
              JOIN devmanta.draw_result dr ON u.id = dr.user_id
              JOIN devmanta.draw d ON dr.draw_id = d.id
+        <where>
+            <if test="userId != null">
+                u.id = #{userId}
+            </if>
+        </where>
     </select>
 
-    <update id="updateUserDrawCntById" parameterType="com.dndn.promotions.model.UserVO">
+    <insert id="insertDrawResult" parameterType="Map">
+        INSERT INTO devmanta.draw_result(user_id, draw_id) VALUES (#{userId}, #{drawId})
+    </insert>
+
+    <update id="addUserDrawCntById" parameterType="com.dndn.promotions.model.UserVO">
         UPDATE devmanta.users
-        SET draw_cnt = #{drawCnt}
+        SET draw_cnt = draw_cnt + 1
         WHERE id = #{id}
     </update>
 
@@ -41,7 +66,7 @@
         WHERE user_id = #{userId}
     </delete>
 
-    <select id="getDrawtById" resultType="com.dndn.promotions.model.DrawVO">
+    <select id="getDrawtById" resultMap="drawVO">
         SELECT id, amount, total, winner_cnt
         FROM devmanta.draw
         WHERE id = #{id}

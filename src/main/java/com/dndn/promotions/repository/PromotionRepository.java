@@ -12,9 +12,9 @@ public interface PromotionRepository {
     UserVO getUser(UserVO userVO);
     void insertUser(UserVO userVO);
 
-    List<UserDrawResultVO> getDrawResult();
+    List<UserDrawResultVO> getDrawResult(Integer userId);
 
-    void updateUserDrawCntById(UserVO userVO);
+    void addUserDrawCntById(UserVO userVO);
     void deleteDrawResultByUserId(Integer userId);
     DrawVO getDrawtById(Integer id);
     void updateDrawWinnerCntById(DrawVO drawVO);

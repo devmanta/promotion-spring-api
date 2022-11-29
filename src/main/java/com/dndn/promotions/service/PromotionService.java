@@ -28,7 +28,7 @@ public class PromotionService {
     }
 
     public List<UserDrawResultVO> getDrawResult() throws Exception {
-        List<UserDrawResultVO> drawResult = promotionRepository.getDrawResult();
+        List<UserDrawResultVO> drawResult = promotionRepository.getDrawResult(null);
 
         for(UserDrawResultVO r : drawResult) {
             this.decryptUser(r);
@@ -37,6 +37,14 @@ public class PromotionService {
         return drawResult;
     }
 
+    public UserDrawResultVO getDrawResultForUser(Integer userId) {
+        List<UserDrawResultVO> drawResult = promotionRepository.getDrawResult(userId);
+        if(drawResult.size() == 1) {
+            return drawResult.get(0);
+        }
+
+        return null;
+    }
 
 
 

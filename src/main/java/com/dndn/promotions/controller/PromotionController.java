@@ -4,8 +4,10 @@ import com.dndn.promotions.model.TestEntity;
 import com.dndn.promotions.model.UserDrawResultVO;
 import com.dndn.promotions.model.UserVO;
 import com.dndn.promotions.service.PromotionService;
+import com.dndn.promotions.util.AesUtils;
 import com.dndn.promotions.util.CryptoGenerator;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -40,6 +42,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -49,6 +52,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PromotionController {
 
     private final PromotionService promotionService;
+    private final AesUtils aesUtils;
 
     @GetMapping(value = {"/generator"})
     public ResponseEntity<Map<String, String>> cryptoGenerator(HttpServletRequest request) {
@@ -60,9 +64,7 @@ public class PromotionController {
 
     @PostMapping(value = "/user")
     public ResponseEntity<UserVO> insertNewUser(HttpServletRequest request, @RequestBody UserVO userVO) throws Exception {
-        String decryptedContact = CryptoGenerator.decryptRSA(request.getSession(), userVO.getContact());
-        userVO.setContact(decryptedContact);
-
+        //front에서 암호화한 값 가져와서 그냥 그대로 그값 저장하면 됨
         promotionService.insertUser(userVO);
         return ResponseEntity.ok(userVO);
     }
@@ -131,6 +133,12 @@ public class PromotionController {
             log.error("excelDownload ERROR", e);
             return null;
         }
+    }
+
+    @GetMapping(value = {"/draw-history/{userId}"})
+    public ResponseEntity<UserDrawResultVO> getDrawHistoryForUser(@PathVariable Integer userId) {
+        UserDrawResultVO drawResultForUser = promotionService.getDrawResultForUser(userId);
+        return ResponseEntity.ok(drawResultForUser);
     }
 
 }
