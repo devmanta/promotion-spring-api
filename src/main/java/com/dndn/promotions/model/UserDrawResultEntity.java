@@ -12,7 +12,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class UserDrawResultVO extends UserVO {
+public class UserDrawResultEntity extends UserEntity {
 
     @ApiModelProperty(notes = "당첨금액")
     private int amount;

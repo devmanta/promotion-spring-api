@@ -17,7 +17,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(Include.NON_NULL)
-public class UserVO {
+public class UserEntity {
 
     private Integer id;
     private String contact;

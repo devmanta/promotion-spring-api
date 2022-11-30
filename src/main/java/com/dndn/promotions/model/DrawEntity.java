@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @Builder
 @JsonInclude(Include.NON_NULL) //null인건 return 안하기
-public class DrawVO {
+public class DrawEntity {
 
     private Integer id;
     private Integer amount;

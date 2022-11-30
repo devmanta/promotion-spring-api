@@ -1,10 +1,9 @@
 package com.dndn.promotions.controller;
 
 import com.dndn.promotions.model.TestEntity;
-import com.dndn.promotions.model.UserVO;
+import com.dndn.promotions.model.UserEntity;
 import com.dndn.promotions.repository.PromotionRepository;
 import com.dndn.promotions.repository.TestRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +19,8 @@ public class TestController {
     private final PromotionRepository promotionRepository;
 
     @GetMapping(value = "/test")
-    public ResponseEntity<UserVO> test() {
-        UserVO user = promotionRepository.getUser(null);
+    public ResponseEntity<UserEntity> test() {
+        UserEntity user = promotionRepository.getUser(null);
         return ResponseEntity.ok(user);
     }
 

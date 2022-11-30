@@ -5,23 +5,23 @@
 
 <mapper namespace="com.dndn.promotions.repository.PromotionRepository">
 
-    <resultMap id="userVO" type="com.dndn.promotions.model.UserVO">
+    <resultMap id="userEntity" type="com.dndn.promotions.model.UserEntity">
         <result column="id" property="id"/>
         <result column="contact" property="contact"/>
         <result column="draw_cnt" property="drawCnt"/>
     </resultMap>
-    <resultMap id="userDrawResultVO" extends="userVO" type="com.dndn.promotions.model.UserDrawResultVO">
+    <resultMap id="userDrawResultEntity" extends="userEntity" type="com.dndn.promotions.model.UserDrawResultEntity">
         <result column="amount" property="amount"/>
     </resultMap>
 
-    <resultMap id="drawVO" type="com.dndn.promotions.model.DrawVO">
+    <resultMap id="drawEntity" type="com.dndn.promotions.model.DrawEntity">
         <result column="id" property="id"/>
         <result column="amount" property="amount"/>
         <result column="total" property="total"/>
         <result column="winner_cnt" property="winnerCnt"/>
     </resultMap>
 
-    <select id="getUser" resultMap="userVO" parameterType="com.dndn.promotions.model.UserVO">
+    <select id="getUser" resultMap="userEntity" parameterType="com.dndn.promotions.model.UserEntity">
         SELECT id, contact, draw_cnt
         FROM devmanta.users
         <where>
@@ -34,12 +34,12 @@
         </where>
     </select>
 
-    <insert id="insertUser" parameterType="com.dndn.promotions.model.UserVO" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertUser" parameterType="com.dndn.promotions.model.UserEntity" useGeneratedKeys="true" keyProperty="id">
       INSERT INTO devmanta.users(contact)
       VALUES (#{contact})
     </insert>
 
-    <select id="getDrawResult" resultMap="userDrawResultVO">
+    <select id="getDrawResult" resultMap="userDrawResultEntity">
         SELECT u.*, d.amount
         FROM devmanta.users u
              JOIN devmanta.draw_result dr ON u.id = dr.user_id
@@ -61,7 +61,7 @@
         INSERT INTO devmanta.draw_result(user_id, draw_id) VALUES (#{userId}, #{drawId})
     </insert>
 
-    <update id="addUserDrawCntById" parameterType="com.dndn.promotions.model.UserVO">
+    <update id="addUserDrawCntById" parameterType="com.dndn.promotions.model.UserEntity">
         UPDATE devmanta.users
         SET draw_cnt = draw_cnt + 1
         WHERE id = #{id}
@@ -72,7 +72,7 @@
         WHERE user_id = #{userId}
     </delete>
 
-    <select id="getDrawtById" resultMap="drawVO">
+    <select id="getDrawtById" resultMap="drawEntity">
         SELECT id, amount, total, winner_cnt
         FROM devmanta.draw
         WHERE id = #{id}

@@ -1,7 +1,7 @@
 package com.dndn.promotions.service;
 
-import com.dndn.promotions.model.UserDrawResultVO;
-import com.dndn.promotions.model.UserVO;
+import com.dndn.promotions.model.UserDrawResultEntity;
+import com.dndn.promotions.model.UserEntity;
 import com.dndn.promotions.repository.PromotionRepository;
 import com.dndn.promotions.util.AesUtils;
 import java.util.List;
@@ -19,28 +19,28 @@ public class PromotionService {
     private final AesUtils aesUtils;
     private final PromotionRepository promotionRepository;
 
-    public UserVO getUser(UserVO userVo) throws Exception {
-        this.encryptUser(userVo);
-        return promotionRepository.getUser(userVo);
+    public UserEntity getUser(UserEntity userEntity) throws Exception {
+        this.encryptUser(userEntity);
+        return promotionRepository.getUser(userEntity);
     }
 
-    public void insertUser(UserVO userVO) throws Exception {
-        userVO.setContact(aesUtils.encryptAES256(userVO.getContact()));
-        promotionRepository.insertUser(userVO);
+    public void insertUser(UserEntity userEntity) throws Exception {
+        userEntity.setContact(aesUtils.encryptAES256(userEntity.getContact()));
+        promotionRepository.insertUser(userEntity);
     }
 
-    public List<UserDrawResultVO> getDrawResult() throws Exception {
-        List<UserDrawResultVO> drawResult = promotionRepository.getDrawResult(null);
+    public List<UserDrawResultEntity> getDrawResult() throws Exception {
+        List<UserDrawResultEntity> drawResult = promotionRepository.getDrawResult(null);
 
-        for(UserDrawResultVO r : drawResult) {
+        for(UserDrawResultEntity r : drawResult) {
             this.decryptUser(r);
         }
 
         return drawResult;
     }
 
-    public UserDrawResultVO getDrawResultForUser(Integer userId) {
-        List<UserDrawResultVO> drawResult = promotionRepository.getDrawResult(userId);
+    public UserDrawResultEntity getDrawResultForUser(Integer userId) {
+        List<UserDrawResultEntity> drawResult = promotionRepository.getDrawResult(userId);
         if(drawResult.size() == 1) {
             return drawResult.get(0);
         }
@@ -49,8 +49,8 @@ public class PromotionService {
     }
 
     @Transactional
-    public boolean removeDrawResultAsUserSharedByKakaoTalk(UserVO userFromRequestBody) {
-        UserVO userFromDb = promotionRepository.getUser(userFromRequestBody);
+    public boolean removeDrawResultAsUserSharedByKakaoTalk(UserEntity userFromRequestBody) {
+        UserEntity userFromDb = promotionRepository.getUser(userFromRequestBody);
         if(userFromDb == null) {
             return false;
         } else if(userFromDb.getDrawCnt() > 3) {
@@ -66,11 +66,11 @@ public class PromotionService {
     }
 
 
-    public void encryptUser(UserVO user) throws Exception{
+    public void encryptUser(UserEntity user) throws Exception{
         user.setContact(aesUtils.encryptAES256(user.getContact()));
     }
 
-    public void decryptUser(UserVO user) throws Exception {
+    public void decryptUser(UserEntity user) throws Exception {
         user.setContact(aesUtils.decryptAES256(user.getContact()));
     }
 }
