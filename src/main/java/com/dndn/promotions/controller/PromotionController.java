@@ -47,7 +47,7 @@ public class PromotionController {
     private final PromotionService promotionService;
     private final PromotionRepository promotionRepository;
 
-    @Operation(summary = "사용자(핸드폰번호) 등록", description = "사용자(핸드폰번호) db에 등록하고, 등록된 값 리턴 - requestBody에 contact만 넣어서 요청주세요!! 저거 필요한거만 빼는거 어케하는지 진짜 모르겠어ㅠㅠ 아마도 안되는거같아 모두 같은 클래스써서..")
+    @Operation(summary = "사용자(핸드폰번호) 등록", description = "사용자(핸드폰번호) db에 등록하고, 등록된 값 리턴 - <strong>requestBody에 contact만 넣어서 요청주세요!!</strong>저거 필요한거만 빼는거 어케하는지 진짜 모르겠어ㅠㅠ 아마도 안되는거같아 모두 같은 클래스써서..")
     @PostMapping(value = "/user")
     public ResponseEntity<UserVO> insertNewUser(HttpServletRequest request, @RequestBody UserVO userVO) throws Exception {
         //front에서 암호화한 값 가져와서 그냥 그대로 그값 저장하면 됨
@@ -130,7 +130,10 @@ public class PromotionController {
         return ResponseEntity.ok(drawResultForUser);
     }
 
-    @Operation(summary = "응모하기", description = "사용자별 응모진행하고 응모결과 받아오기 - requestBody에 id 값만 넣어서 요청해주세요!!!!! 저거 필요한거만 빼는거 어케하는지 진짜 모르겠어ㅠㅠ 아마도 안되는거같아 모두 같은 클래스써서..")
+    @Operation(summary = "응모하기", description = "사용자별 응모진행하고 응모결과 받아오기 - <strong>requestBody에 id 값만 넣어서 요청해주세요!!!!!</strong> 저거 필요한거만 빼는거 어케하는지 진짜 모르겠어ㅠㅠ 아마도 안되는거같아 모두 같은 클래스써서.."
+        + "<br /><br />여기서 하는일: 요청한 id(userId) 기준으로<br />"
+        + "1. user 당첨결과 있으면 return null(당첨결과 있으면 이 api호출 안하겠지만 그냥 방어용)<br />"
+        + "2. 당첨로직 통해서 user 당첨결과 선정 및 return")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "amount: 응모결과금액", content = @Content(schema = @Schema(implementation = UserDrawResultVO.class)))
     })
@@ -145,7 +148,11 @@ public class PromotionController {
         return null;
     }
 
-    @Operation(summary = "카카오톡 공유하기 콜백 url", description = "카카오톡에서 공유 성공하면 호출할거..  공유하기 할때 serverCallbackArgs: {id: 사용자 id}, 만 넣어서 호출해주세요 !!!")
+    @Operation(summary = "카카오톡 공유하기 콜백 url", description = "카카오톡에서 공유 성공하면 호출할거..  공유하기 할때 serverCallbackArgs: {id: 사용자 id}, 만 넣어서 호출해주세요 !!!"
+        + "<br /><br />여기서 하는일: 카카오에서 보내준 userId 기준으로<br />"
+        + "1. db에서 user 존재여부 확인<br />"
+        + "2. user 당첨결과 삭제<br />"
+        + "3. user가 당첨되었던 당첨금액의 총 당첨자 수 -1")
     @PostMapping(value = {"/kakao-share"})
     public void kakaoShareCallBack(@RequestBody UserVO userFromRequestBody) {
         log.info("kakaoShareCallBack CALL START, userVO={}", userFromRequestBody);
