@@ -2,6 +2,7 @@ package com.dndn.promotions.controller;
 
 import com.dndn.promotions.model.UserDrawResultVO;
 import com.dndn.promotions.model.UserVO;
+import com.dndn.promotions.repository.PromotionRepository;
 import com.dndn.promotions.service.PromotionService;
 import com.dndn.promotions.util.AesUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PromotionController {
 
     private final PromotionService promotionService;
-    private final AesUtils aesUtils;
+    private final PromotionRepository promotionRepository;
 
     @Operation(summary = "사용자(핸드폰번호) 등록", description = "사용자(핸드폰번호) db에 등록하고, 등록된 값 리턴 - requestBody에 contact만 넣어서 요청주세요!! 저거 필요한거만 빼는거 어케하는지 진짜 모르겠어ㅠㅠ 아마도 안되는거같아 모두 같은 클래스써서..")
     @PostMapping(value = "/user")
@@ -120,7 +122,7 @@ public class PromotionController {
 
     @Operation(summary = "응모결과 확인", description = "해당 사용자가 응모한 결과 받아오기 (응모결과 있으면 재응모X)")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "amount: 응모결과금액", content = @Content(schema = @Schema(implementation = UserDrawResultVO.class)))
+        @ApiResponse(responseCode = "200", description = "amount: 응모결과금액 / 응모결과 없으면 쌩 null return", content = @Content(schema = @Schema(implementation = UserDrawResultVO.class)))
     })
     @GetMapping(value = {"/draw-history/{userId}"})
     public ResponseEntity<UserDrawResultVO> getDrawHistoryForUser(@PathVariable Integer userId) {
@@ -135,11 +137,22 @@ public class PromotionController {
     @PostMapping(value = {"/draw"})
     public ResponseEntity<UserDrawResultVO> setDrawResult(@RequestBody UserVO userVO) {
         UserDrawResultVO drawResultForUser = promotionService.getDrawResultForUser(userVO.getId());
-        if(drawResultForUser != null) {
+        if(drawResultForUser != null) { // 이건 그냥 방어코드 응모했던사람은 front에서 이 api 호출 안할거지만.. 어케 호출 한다는 가정하에
             return null;
         }
 
 
         return null;
     }
+
+    @Operation(summary = "카카오톡 공유하기 콜백 url", description = "카카오톡에서 공유 성공하면 호출할거..  공유하기 할때 serverCallbackArgs: {id: 사용자 id}, 만 넣어서 호출해주세요 !!!")
+    @PostMapping(value = {"/kakao-share"})
+    public void kakaoShareCallBack(@RequestBody UserVO userFromRequestBody) {
+        log.info("kakaoShareCallBack CALL START, userVO={}", userFromRequestBody);
+        boolean isSucceed = promotionService.removeDrawResultAsUserSharedByKakaoTalk(userFromRequestBody);
+        if(!isSucceed) {
+            log.error("kakaoShareCallBack userFromDb is null OR userDrawCnt > 3, userVO={}", userFromRequestBody);
+        }
+    }
+
 }

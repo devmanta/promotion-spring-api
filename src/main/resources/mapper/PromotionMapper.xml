@@ -51,6 +51,12 @@
         </where>
     </select>
 
+    <select id="getDrawResultByUserId" resultType="Map">
+        SELECT user_id as 'userId', draw_id as 'drawId'
+        FROM devmanta.draw_result
+        WHERE user_id = #{userId}
+    </select>
+
     <insert id="insertDrawResult" parameterType="Map">
         INSERT INTO devmanta.draw_result(user_id, draw_id) VALUES (#{userId}, #{drawId})
     </insert>
@@ -72,10 +78,16 @@
         WHERE id = #{id}
     </select>
 
-    <update id="updateDrawWinnerCntById" parameterType="com.dndn.promotions.model.DrawVO">
+    <update id="addDrawWinnerCntById">
         UPDATE devmanta.draw
-        SET winner_cnt = #{winnerCnt}
-        WHERE id = #{id}
+        SET winner_cnt = winner_cnt + 1
+        WHERE id = #{drawId}
+    </update>
+
+    <update id="deductDrawWinnerCntById">
+        UPDATE devmanta.draw
+        SET winner_cnt = winner_cnt - 1
+        WHERE id = #{drawId}
     </update>
 
 </mapper>

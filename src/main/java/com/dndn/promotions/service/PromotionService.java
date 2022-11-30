@@ -5,9 +5,11 @@ import com.dndn.promotions.model.UserVO;
 import com.dndn.promotions.repository.PromotionRepository;
 import com.dndn.promotions.util.AesUtils;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -46,6 +48,22 @@ public class PromotionService {
         return null;
     }
 
+    @Transactional
+    public boolean removeDrawResultAsUserSharedByKakaoTalk(UserVO userFromRequestBody) {
+        UserVO userFromDb = promotionRepository.getUser(userFromRequestBody);
+        if(userFromDb == null) {
+            return false;
+        } else if(userFromDb.getDrawCnt() > 3) {
+            return false;
+        }
+
+        Map<String, Integer> drawResultByUserId = promotionRepository.getDrawResultByUserId(userFromDb.getId());
+
+        promotionRepository.deductDrawWinnerCntById(drawResultByUserId.get("drawId"));
+        promotionRepository.deleteDrawResultByUserId(userFromDb.getId());
+
+        return true;
+    }
 
 
     public void encryptUser(UserVO user) throws Exception{
