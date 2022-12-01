@@ -18,6 +18,8 @@ public interface PromotionRepository {
     void addUserDrawCntById(UserEntity userEntity);
     void deleteDrawResultByUserId(Integer userId);
     DrawEntity getDrawtById(Integer id);
+    List<DrawEntity> getDrawList();
+
     void addDrawWinnerCntById(Integer drawId);
 
     Map<String, Integer> getDrawResultByUserId(Integer userId);

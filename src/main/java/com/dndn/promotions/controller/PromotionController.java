@@ -1,9 +1,11 @@
 package com.dndn.promotions.controller;
 
+import com.dndn.promotions.model.DrawEntity;
 import com.dndn.promotions.model.UserDrawResultEntity;
 import com.dndn.promotions.model.UserEntity;
 import com.dndn.promotions.repository.PromotionRepository;
 import com.dndn.promotions.service.PromotionService;
+import com.dndn.promotions.util.DrawUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -35,15 +37,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@RequestMapping(value = "/v1/api")
 public class PromotionController {
 
     private final PromotionService promotionService;
     private final PromotionRepository promotionRepository;
+
+    private final DrawUtils drawUtils;
 
     @Operation(summary = "사용자(핸드폰번호) 등록", description = "사용자(핸드폰번호) db에 등록하고, 등록된 값 리턴 - <strong>requestBody에 contact만 넣어서 요청주세요!!</strong>저거 필요한거만 빼는거 어케하는지 진짜 모르겠어ㅠㅠ 아마도 안되는거같아 모두 같은 클래스써서..")
     @PostMapping(value = "/user")
@@ -152,6 +158,48 @@ public class PromotionController {
 //        660,000원 (9/560, 약 1.6%)
 //        66,000 (46/560, 약 8.2%)
 //        6,600 (505/560, 약 90.2%)
+
+        List<DrawEntity> drawList = promotionRepository.getDrawList();
+
+        int totalWinnersCnt = 0; // 총 당첨자 수 (== 모집단)
+        int winnersCntTillNow = 0; // 현재까지 총 당첨자 수
+
+        for(DrawEntity d : drawList) {
+            totalWinnersCnt += d.getTotal();
+            winnersCntTillNow += d.getWinnerCnt();
+        }
+
+        int denominator = totalWinnersCnt - winnersCntTillNow; // 총 당첨자 수 - 현재까지 총 당첨자수가 당첨확률의 분모가 된다.
+
+        int[] winProbability = new int[drawList.size()];
+
+        int drawResult = 0; // 당첨결과 (draw.id)
+        for(int i = 0; i < winProbability.length; i++) {
+            DrawEntity draw = drawList.get(i);
+
+            // 만약에 마지막 순번이면은 그냥 마지막(제일 꼴등) 금액 당첨되게
+            if(i == winProbability.length - 1) {
+                drawResult = draw.getId();
+                break;
+            }
+
+            // 당첨진행 고고
+            int remainCnt = draw.getTotal() - draw.getWinnerCnt(); // 남은 당첨 숫자
+            double r = (double) remainCnt / (double) denominator;
+            winProbability[i] = (int) (r * 100);
+
+            if(winProbability[i] == 0) {
+                // 확률 구하기가 소숫점은 안되가지고.. 0이면은 그냥 1% 확률로 추첨하기..
+                winProbability[i] = 1;
+            }
+
+            boolean isJackpot = drawUtils.isPercentWin(winProbability[i]);
+
+            if(isJackpot) {
+                drawResult = draw.getId();
+                break;
+            }
+        }
 
 
         return null;

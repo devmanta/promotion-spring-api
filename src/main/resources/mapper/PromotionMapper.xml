@@ -78,6 +78,12 @@
         WHERE id = #{id}
     </select>
 
+    <select id="getDrawList" resultMap="drawEntity">
+        SELECT id, amount, total, winner_cnt
+        FROM devmanta.draw
+        ORDER BY id
+    </select>
+
     <update id="addDrawWinnerCntById">
         UPDATE devmanta.draw
         SET winner_cnt = winner_cnt + 1
