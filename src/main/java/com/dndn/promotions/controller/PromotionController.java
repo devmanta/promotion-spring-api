@@ -16,7 +16,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,19 +54,9 @@ public class PromotionController {
 
     private final DrawUtils drawUtils;
 
-    @Operation(summary = "사용자(핸드폰번호) 등록", description = "사용자(핸드폰번호) db에 등록하고, 등록된 값 리턴 - <strong>requestBody에 contact만 넣어서 요청주세요!!</strong>저거 필요한거만 빼는거 어케하는지 진짜 모르겠어ㅠㅠ 아마도 안되는거같아 모두 같은 클래스써서..")
     @PostMapping(value = "/user")
-    public ResponseEntity<UserEntity> insertNewUser(HttpServletRequest request, @RequestBody UserEntity userEntity) throws Exception {
-        //front에서 암호화한 값 가져와서 그냥 그대로 그값 저장하면 됨
-        promotionService.insertUser(userEntity);
-        return ResponseEntity.ok(userEntity);
-    }
-
-    @Operation(summary = "핸드폰번호 DB에 존재여부 확인", description = "해당 핸드폰번호가 db에 등록돠있는지 확인. 없으면 그냥 쌩 null 리턴함..")
-    @GetMapping(value = "/user")
-    public ResponseEntity<UserEntity> getUserByContact(HttpServletRequest request, @RequestParam String contact) throws Exception {
-        UserEntity user = UserEntity.builder().contact(contact).build();
-        return ResponseEntity.ok(promotionService.getUser(user));
+    public ResponseEntity<UserEntity> doUserDraw(HttpServletRequest request, @RequestBody UserEntity userEntity) throws Exception {
+        return promotionService.doUserDraw(userEntity);
     }
 
     @GetMapping(value = "/excel")
@@ -213,7 +205,10 @@ public class PromotionController {
         + "3. user가 당첨되었던 당첨금액의 총 당첨자 수 -1")
     @PostMapping(value = {"/kakao-share"})
     public void kakaoShareCallBack(@RequestBody UserEntity userFromRequestBody) {
+        log.info("==============================================================");
         log.info("kakaoShareCallBack CALL START, userVO={}", userFromRequestBody);
+        log.info("==============================================================");
+
         boolean isSucceed = promotionService.removeDrawResultAsUserSharedByKakaoTalk(userFromRequestBody);
         if(!isSucceed) {
             log.info("kakaoShareCallBack userFromDb is null OR userDrawCnt > 3, userVO={}", userFromRequestBody);

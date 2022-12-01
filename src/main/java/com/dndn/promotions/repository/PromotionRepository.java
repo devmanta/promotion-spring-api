@@ -13,7 +13,8 @@ public interface PromotionRepository {
     UserEntity getUser(UserEntity userEntity);
     void insertUser(UserEntity userEntity);
 
-    List<UserDrawResultEntity> getDrawResult(Integer userId);
+    List<UserDrawResultEntity> getDrawResultList(Integer userId);
+    UserDrawResultEntity getDrawResultWithUserDetail(Integer userId);
 
     void addUserDrawCntById(UserEntity userEntity);
     void deleteDrawResultByUserId(Integer userId);
@@ -24,4 +25,6 @@ public interface PromotionRepository {
 
     Map<String, Integer> getDrawResultByUserId(Integer userId);
     void deductDrawWinnerCntById(Integer drawId);
+
+    void insertDrawResult(Map<String, Integer> params);
 }

@@ -1,13 +1,17 @@
 package com.dndn.promotions.service;
 
+import com.dndn.promotions.model.DrawEntity;
 import com.dndn.promotions.model.UserDrawResultEntity;
 import com.dndn.promotions.model.UserEntity;
 import com.dndn.promotions.repository.PromotionRepository;
 import com.dndn.promotions.util.AesUtils;
+import com.dndn.promotions.util.DrawUtils;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,18 +23,35 @@ public class PromotionService {
     private final AesUtils aesUtils;
     private final PromotionRepository promotionRepository;
 
-    public UserEntity getUser(UserEntity userEntity) throws Exception {
-        this.encryptUser(userEntity);
-        return promotionRepository.getUser(userEntity);
-    }
+    private final DrawUtils drawUtils;
 
-    public void insertUser(UserEntity userEntity) throws Exception {
-        userEntity.setContact(aesUtils.encryptAES256(userEntity.getContact()));
-        promotionRepository.insertUser(userEntity);
+    @Transactional
+    public ResponseEntity<UserEntity> doUserDraw(UserEntity userEntity) {
+        UserEntity userFromDb = promotionRepository.getUser(userEntity);
+        if(userFromDb == null) {
+            userFromDb = new UserEntity();
+            userFromDb.setContact(userEntity.getContact());
+            promotionRepository.insertUser(userFromDb);
+        }
+
+        UserDrawResultEntity drawResultByUser = promotionRepository.getDrawResultWithUserDetail(userFromDb.getId());
+
+        if(drawResultByUser != null) {
+            return ResponseEntity.ok(userFromDb);
+        }
+
+        UserDrawResultEntity userDrawResult = this.doDraw(userFromDb);
+
+        if(userDrawResult == null) {
+            return ResponseEntity.badRequest().body(null); // 400
+        }
+
+
+        return ResponseEntity.ok(userDrawResult);
     }
 
     public List<UserDrawResultEntity> getDrawResult() throws Exception {
-        List<UserDrawResultEntity> drawResult = promotionRepository.getDrawResult(null);
+        List<UserDrawResultEntity> drawResult = promotionRepository.getDrawResultList(null);
 
         for(UserDrawResultEntity r : drawResult) {
             this.decryptUser(r);
@@ -40,7 +61,7 @@ public class PromotionService {
     }
 
     public UserDrawResultEntity getDrawResultForUser(Integer userId) {
-        List<UserDrawResultEntity> drawResult = promotionRepository.getDrawResult(userId);
+        List<UserDrawResultEntity> drawResult = promotionRepository.getDrawResultList(userId);
         if(drawResult.size() == 1) {
             return drawResult.get(0);
         }
@@ -64,6 +85,87 @@ public class PromotionService {
 
         return true;
     }
+
+//        당첨 로직 :
+//        전체 인원 중 당첨 확률로 계산해 당첨
+//        660,000원 (10/1,060, 약 0.9%)
+//        66,000원 (50/1,060, 약 4.7%)
+//        6,600원 (1,000/1,060, 약 94.3%)
+//
+//        500명 응오한것 중에 495명이 3등, 4명이 2등 1명이 1등
+//        660,000원 (9/560, 약 1.6%)
+//        66,000 (46/560, 약 8.2%)
+//        6,600 (505/560, 약 90.2%)
+    @Transactional
+    public UserDrawResultEntity doDraw(UserEntity targetUser) {
+        UserDrawResultEntity drawResultFromDb = this.getDrawResultForUser(targetUser.getId());
+        if(drawResultFromDb != null) { // 이건 그냥 방어코드 응모했던사람은 front에서 이 api 호출 안할거지만.. 어케 호출 한다는 가정하에
+            return null;
+        }
+
+        UserDrawResultEntity drawResultByUser = new UserDrawResultEntity();
+        drawResultByUser.setId(targetUser.getId());
+        drawResultByUser.setDrawCnt(targetUser.getDrawCnt());
+
+        List<DrawEntity> drawList = promotionRepository.getDrawList();
+
+        int totalWinnersCnt = 0; // 총 당첨자 수 (== 모집단)
+        int winnersCntTillNow = 0; // 현재까지 총 당첨자 수
+
+        for(DrawEntity d : drawList) {
+            totalWinnersCnt += d.getTotal();
+            winnersCntTillNow += d.getWinnerCnt();
+        }
+
+        int denominator = totalWinnersCnt - winnersCntTillNow; // 총 당첨자 수 - 현재까지 총 당첨자수가 당첨확률의 분모가 된다.
+
+        int[] winProbability = new int[drawList.size()];
+
+        DrawEntity jackpotResult = null; // 당첨결과
+        for(int i = 0; i < winProbability.length; i++) {
+            DrawEntity draw = drawList.get(i);
+
+            // 만약에 마지막 순번이면은 그냥 마지막(제일 꼴등) 금액 당첨되게
+            if(i == winProbability.length - 1) {
+                jackpotResult = draw;
+                break;
+            }
+
+            // 당첨진행 고고
+            int remainCnt = draw.getTotal() - draw.getWinnerCnt(); // 남은 당첨 숫자
+            double r = (double) remainCnt / (double) denominator;
+            winProbability[i] = (int) (r * 100);
+
+            if(winProbability[i] == 0) {
+                // 확률 구하기가 소숫점은 안되가지고.. 0이면은 그냥 1% 확률로 추첨하기..
+                winProbability[i] = 1;
+            }
+
+            boolean isJackpot = drawUtils.isPercentWin(winProbability[i]);
+
+            if(isJackpot) {
+                jackpotResult = draw;
+                break;
+            }
+        }
+
+        if(jackpotResult != null) {
+            drawResultByUser.setAmount(jackpotResult.getAmount());
+
+            Map<String, Integer> param = new HashMap<>();
+            param.put("userId", drawResultByUser.getId());
+            param.put("drawId", jackpotResult.getId());
+            promotionRepository.insertDrawResult(param);
+
+            promotionRepository.addUserDrawCntById(drawResultByUser);
+            promotionRepository.addDrawWinnerCntById(jackpotResult.getId());
+            return drawResultByUser;
+        }
+
+        return null;
+    }
+
+
 
 
     public void encryptUser(UserEntity user) throws Exception{
