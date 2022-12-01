@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -60,8 +61,8 @@ public class PromotionController {
     }
 
     @Operation(summary = "핸드폰번호 DB에 존재여부 확인", description = "해당 핸드폰번호가 db에 등록돠있는지 확인. 없으면 그냥 쌩 null 리턴함..")
-    @GetMapping(value = "/user/{contact}")
-    public ResponseEntity<UserEntity> getUserByContact(HttpServletRequest request, @PathVariable String contact) throws Exception {
+    @GetMapping(value = "/user")
+    public ResponseEntity<UserEntity> getUserByContact(HttpServletRequest request, @RequestParam String contact) throws Exception {
         UserEntity user = UserEntity.builder().contact(contact).build();
         return ResponseEntity.ok(promotionService.getUser(user));
     }
