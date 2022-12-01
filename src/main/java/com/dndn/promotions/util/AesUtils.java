@@ -14,11 +14,9 @@ public class AesUtils {
     private final String alg = "AES/CBC/PKCS5Padding";
     @Value("${dndn.aes.key}")
     private String key;
-//    private final String key = "pugctaxutvrbqsxlaidviyoizveape"; // 32byte
 
     @Value("${dndn.aes.iv}")
     private String iv;
-//    private String iv = "0123456789abcdef"; // 16byte
 
     public String encryptAES256(String text) throws Exception {
         Cipher cipher = Cipher.getInstance(alg);

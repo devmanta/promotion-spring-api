@@ -54,7 +54,7 @@ public class PromotionController {
 
     private final DrawUtils drawUtils;
 
-    @PostMapping(value = "/user")
+    @PostMapping(value = "/draw")
     public ResponseEntity<UserEntity> doUserDraw(HttpServletRequest request, @RequestBody UserEntity userEntity) throws Exception {
         return promotionService.doUserDraw(userEntity);
     }
