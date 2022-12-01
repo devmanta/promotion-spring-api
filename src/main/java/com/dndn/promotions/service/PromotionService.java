@@ -37,15 +37,15 @@ public class PromotionService {
         UserDrawResultEntity drawResultByUser = promotionRepository.getDrawResultWithUserDetail(userFromDb.getId());
 
         if(drawResultByUser != null) {
+            //당첨 결과가 있으면 응모하면 안됨
             return ResponseEntity.ok(userFromDb);
         }
 
         UserDrawResultEntity userDrawResult = this.doDraw(userFromDb);
 
         if(userDrawResult == null) {
-            return ResponseEntity.badRequest().body(null); // 400
+            return ResponseEntity.internalServerError().body(null);
         }
-
 
         return ResponseEntity.ok(userDrawResult);
     }
@@ -98,11 +98,6 @@ public class PromotionService {
 //        6,600 (505/560, 약 90.2%)
     @Transactional
     public UserDrawResultEntity doDraw(UserEntity targetUser) {
-        UserDrawResultEntity drawResultFromDb = this.getDrawResultForUser(targetUser.getId());
-        if(drawResultFromDb != null) { // 이건 그냥 방어코드 응모했던사람은 front에서 이 api 호출 안할거지만.. 어케 호출 한다는 가정하에
-            return null;
-        }
-
         UserDrawResultEntity drawResultByUser = new UserDrawResultEntity();
         drawResultByUser.setId(targetUser.getId());
         drawResultByUser.setDrawCnt(targetUser.getDrawCnt());
@@ -134,7 +129,7 @@ public class PromotionService {
             // 당첨진행 고고
             int remainCnt = draw.getTotal() - draw.getWinnerCnt(); // 남은 당첨 숫자
             double r = (double) remainCnt / (double) denominator;
-            winProbability[i] = (int) (r * 100);
+            winProbability[i] = (int) Math.round(r * 100);
 
             if(winProbability[i] == 0) {
                 // 확률 구하기가 소숫점은 안되가지고.. 0이면은 그냥 1% 확률로 추첨하기..
