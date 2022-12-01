@@ -60,15 +60,6 @@ public class PromotionService {
         return drawResult;
     }
 
-    public UserDrawResultEntity getDrawResultForUser(Integer userId) {
-        List<UserDrawResultEntity> drawResult = promotionRepository.getDrawResultList(userId);
-        if(drawResult.size() == 1) {
-            return drawResult.get(0);
-        }
-
-        return null;
-    }
-
     @Transactional
     public boolean removeDrawResultAsUserSharedByKakaoTalk(UserEntity userFromRequestBody) {
         UserEntity userFromDb = promotionRepository.getUser(userFromRequestBody);
