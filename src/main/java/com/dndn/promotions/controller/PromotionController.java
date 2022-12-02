@@ -32,6 +32,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +54,9 @@ public class PromotionController {
     private final PromotionRepository promotionRepository;
 
     private final DrawUtils drawUtils;
+
+    @Value("${dndn.excel}")
+    private String myNum;
 
     @PostMapping(value = "/draw")
     public ResponseEntity<UserEntity> doUserDraw(HttpServletRequest request, @RequestBody UserEntity userEntity) throws Exception {
@@ -88,7 +92,7 @@ public class PromotionController {
 
                 EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile);
                 Encryptor encryptor = info.getEncryptor();
-                encryptor.confirmPassword("1234");
+                encryptor.confirmPassword(myNum);
 
                 try (OPCPackage opc = OPCPackage.open(file, PackageAccess.READ_WRITE);
                     OutputStream os = encryptor.getDataStream(fs)) {

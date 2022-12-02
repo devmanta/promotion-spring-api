@@ -28,6 +28,8 @@ public class PromotionService {
     @Transactional
     public ResponseEntity<UserEntity> doUserDraw(UserEntity userEntity) {
         UserEntity userFromDb = promotionRepository.getUser(userEntity);
+
+        boolean isSoldOut = promotionRepository.isSoldOut();
         if(userFromDb == null) {
             userFromDb = new UserEntity();
             userFromDb.setContact(userEntity.getContact());
@@ -38,10 +40,18 @@ public class PromotionService {
 
         if(drawResultByUser != null) {
             //당첨 결과가 있으면 응모하면 안됨
+            userFromDb.setSoldOut(isSoldOut);
             return ResponseEntity.ok(userFromDb);
         }
 
-        UserDrawResultEntity userDrawResult = this.doDraw(userFromDb);
+        UserDrawResultEntity userDrawResult = new UserDrawResultEntity();
+        userDrawResult.setId(userFromDb.getId());
+        userDrawResult.setDrawCnt(userFromDb.getDrawCnt());
+        userDrawResult.setSoldOut(isSoldOut);
+
+        if(!isSoldOut) {
+            userDrawResult = this.doDraw(userDrawResult);
+        }
 
         if(userDrawResult == null) {
             return ResponseEntity.internalServerError().body(null);
@@ -88,11 +98,7 @@ public class PromotionService {
 //        66,000 (46/560, 약 8.2%)
 //        6,600 (505/560, 약 90.2%)
     @Transactional
-    public UserDrawResultEntity doDraw(UserEntity targetUser) {
-        UserDrawResultEntity drawResultByUser = new UserDrawResultEntity();
-        drawResultByUser.setId(targetUser.getId());
-        drawResultByUser.setDrawCnt(targetUser.getDrawCnt());
-
+    public UserDrawResultEntity doDraw(UserDrawResultEntity drawResultByUser) {
         List<DrawEntity> drawList = promotionRepository.getDrawList();
 
         int totalWinnersCnt = 0; // 총 당첨자 수 (== 모집단)

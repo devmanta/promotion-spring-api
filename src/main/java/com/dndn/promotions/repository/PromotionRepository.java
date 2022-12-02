@@ -27,4 +27,6 @@ public interface PromotionRepository {
     void deductDrawWinnerCntById(Integer drawId);
 
     void insertDrawResult(Map<String, Integer> params);
+
+    boolean isSoldOut();
 }

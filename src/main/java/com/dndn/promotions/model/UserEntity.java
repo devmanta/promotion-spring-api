@@ -24,4 +24,6 @@ public class UserEntity {
     @ApiModelProperty(notes = "응모횟수")
     private Integer drawCnt;
 
+    private boolean isSoldOut;
+
 }

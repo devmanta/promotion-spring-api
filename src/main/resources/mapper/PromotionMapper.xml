@@ -101,4 +101,8 @@
         WHERE id = #{drawId}
     </update>
 
+    <select id="isSoldOut" resultType="boolean">
+        SELECT IF(SUM(total) = SUM(winner_cnt), 1, 0) FROM devmanta.draw
+    </select>
+
 </mapper>
