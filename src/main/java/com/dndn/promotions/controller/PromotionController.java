@@ -130,7 +130,9 @@ public class PromotionController {
 
         boolean isSucceed = promotionService.removeDrawResultAsUserSharedByKakaoTalk(userFromRequestBody);
         if(!isSucceed) {
-            log.info("kakaoShareCallBack userFromDb is null OR userDrawCnt > 3, userVO={}", userFromRequestBody);
+            log.info("==============================================================");
+            log.info("kakaoShareCallBack userFromDb is null OR userDrawCnt > 4, userVO={}", userFromRequestBody);
+            log.info("==============================================================");
         }
     }
 

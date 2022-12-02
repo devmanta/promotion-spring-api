@@ -65,7 +65,7 @@ public class PromotionService {
         UserEntity userFromDb = promotionRepository.getUser(userFromRequestBody);
         if(userFromDb == null) {
             return false;
-        } else if(userFromDb.getDrawCnt() > 3) {
+        } else if(userFromDb.getDrawCnt() > 4) {
             return false;
         }
 
