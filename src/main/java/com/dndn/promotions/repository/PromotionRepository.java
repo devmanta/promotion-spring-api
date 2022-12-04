@@ -13,7 +13,7 @@ public interface PromotionRepository {
     UserEntity getUser(UserEntity userEntity);
     void insertUser(UserEntity userEntity);
 
-    List<UserDrawResultEntity> getDrawResultList(Integer userId);
+    List<UserDrawResultEntity> getDrawResultList();
     UserDrawResultEntity getDrawResultWithUserDetail(Integer userId);
 
     void addUserDrawCntById(UserEntity userEntity);
@@ -33,4 +33,5 @@ public interface PromotionRepository {
     void insertUserShare(String contact);
     Map<String, Object> getUserShareByContact(String contact);
     void deleteUserShareByContact(String contact);
+    void insertDrawResultHistory(Integer userId);
 }

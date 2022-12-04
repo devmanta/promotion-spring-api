@@ -41,11 +41,11 @@
         FROM devmanta.users u
              JOIN devmanta.draw_result dr ON u.id = dr.user_id
              JOIN devmanta.draw d ON dr.draw_id = d.id
-        <where>
-            <if test="userId != null">
-                u.id = #{userId}
-            </if>
-        </where>
+        UNION ALL
+        SELECT u.*, d.amount
+        FROM devmanta.users u
+             JOIN devmanta.draw_result_history drh ON u.id = drh.user_id
+             JOIN devmanta.draw d ON drh.draw_id = d.id
     </select>
 
     <select id="getDrawResultWithUserDetail" resultMap="userDrawResultEntity">
@@ -119,4 +119,10 @@
         DELETE FROM devmanta.user_share
         WHERE contact= #{contact}
     </delete>
+
+    <insert id="insertDrawResultHistory">
+        INSERT INTO devmanta.draw_result_history
+        SELECT * from devmanta.draw_result WHERE user_id = #{userId}
+    </insert>
+
 </mapper>

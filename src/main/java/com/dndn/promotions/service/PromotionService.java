@@ -72,7 +72,7 @@ public class PromotionService {
     }
 
     public List<UserDrawResultEntity> getDrawResult() throws Exception {
-        List<UserDrawResultEntity> drawResult = promotionRepository.getDrawResultList(null);
+        List<UserDrawResultEntity> drawResult = promotionRepository.getDrawResultList();
 
         for(UserDrawResultEntity r : drawResult) {
             this.decryptUser(r);
@@ -91,7 +91,8 @@ public class PromotionService {
         }
 
         Map<String, Integer> drawResultByUserId = promotionRepository.getDrawResultByUserId(userFromDb.getId());
-
+        promotionRepository.insertDrawResultHistory(drawResultByUserId.get("userId"));
+        
         promotionRepository.deductDrawWinnerCntById(drawResultByUserId.get("drawId"));
         promotionRepository.deleteDrawResultByUserId(userFromDb.getId());
 
