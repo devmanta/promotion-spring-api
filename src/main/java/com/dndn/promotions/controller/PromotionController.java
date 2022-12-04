@@ -154,18 +154,18 @@ public class PromotionController {
 
 
 
-    @Operation(summary = "공유하기 클릭 시 호출", description = "카톡 공유하기 클릭 시, 기존 공유하기 성공 여부 삭제하는 api<br /><br />requestBody에 아래 처럼 호출해주세요!!!<br /><strong>{contact: 'awfwafwkejnwkf=='}</strong>")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "<strong>{success : true}</strong> 로 내려가긴 할텐데.. 기존 공유하기 성공 레코드 db 삭제 잘된거!"),
-        @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR !! 내가 뭔가를 잘못했거나.. 요청값이 제대로 맞지 않아서 에러가 났거나..")
-    })
-    @DeleteMapping(value = {"/share"})
-    public ResponseEntity<Map<String, Boolean>> deleteKakaoShareRecord(@RequestBody Map<String, String> reqBody) {
-        Map<String, Boolean> result = new HashMap<>();
-        result.put("success", true);
-        promotionService.deleteKakaoShareRecord(reqBody.get("contact"));
-        return ResponseEntity.ok(result);
-    }
+//    @Operation(summary = "공유하기 클릭 시 호출", description = "카톡 공유하기 클릭 시, 기존 공유하기 성공 여부 삭제하는 api<br /><br />requestBody에 아래 처럼 호출해주세요!!!<br /><strong>{contact: 'awfwafwkejnwkf=='}</strong>")
+//    @ApiResponses({
+//        @ApiResponse(responseCode = "200", description = "<strong>{success : true}</strong> 로 내려가긴 할텐데.. 기존 공유하기 성공 레코드 db 삭제 잘된거!"),
+//        @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR !! 내가 뭔가를 잘못했거나.. 요청값이 제대로 맞지 않아서 에러가 났거나..")
+//    })
+//    @DeleteMapping(value = {"/share"})
+//    public ResponseEntity<Map<String, Boolean>> deleteKakaoShareRecord(@RequestBody Map<String, String> reqBody) {
+//        Map<String, Boolean> result = new HashMap<>();
+//        result.put("success", true);
+//        promotionService.deleteKakaoShareRecord(reqBody.get("contact"));
+//        return ResponseEntity.ok(result);
+//    }
 
 
 

@@ -36,6 +36,8 @@ public class PromotionService {
             promotionRepository.insertUser(userFromDb);
         }
 
+        promotionRepository.deleteUserShareByContact(userEntity.getContact()); // 카톡 공유하기 성공 레코드 지우기
+
         UserDrawResultEntity drawResultByUser = promotionRepository.getDrawResultWithUserDetail(userFromDb.getId());
 
         if(drawResultByUser != null) {
@@ -167,9 +169,9 @@ public class PromotionService {
         return null;
     }
 
-    public void deleteKakaoShareRecord(String contact) {
-        promotionRepository.deleteUserShareByContact(contact);
-    }
+//    public void deleteKakaoShareRecord(String contact) {
+//        promotionRepository.deleteUserShareByContact(contact);
+//    }
 
     public boolean isKakaoShareSucced(String contact) {
         Map<String, Object> userShareByContact = promotionRepository.getUserShareByContact(contact);
