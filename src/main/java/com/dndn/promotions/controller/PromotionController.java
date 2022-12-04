@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,6 +84,7 @@ public class PromotionController {
             headerRow.createCell(0).setCellValue("번호");
             headerRow.createCell(1).setCellValue("연락처");
             headerRow.createCell(2).setCellValue("당첨금액");
+            headerRow.createCell(3).setCellValue("당첨날짜");
 
             List<UserDrawResultEntity> list = promotionService.getDrawResult();
             for(UserDrawResultEntity r : list) {
@@ -90,6 +92,7 @@ public class PromotionController {
                 row.createCell(0).setCellValue(r.getId());
                 row.createCell(1).setCellValue(r.getContact());
                 row.createCell(2).setCellValue(r.getAmount());
+                row.createCell(3).setCellValue(r.getCreateDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             }
 
             File file = new File(System.getProperty("user.dir") + "/z.xlsx");
@@ -119,7 +122,7 @@ public class PromotionController {
             file.delete();
 
             HttpHeaders headers = new HttpHeaders();
-            headers.add("Content-Disposition", "attachment;filename=test.xlsx");
+            headers.add("Content-Disposition", "attachment;filename=draw_result.xlsx");
 
             return ResponseEntity
                 .ok()

@@ -12,6 +12,7 @@
     </resultMap>
     <resultMap id="userDrawResultEntity" extends="userEntity" type="com.dndn.promotions.model.UserDrawResultEntity">
         <result column="amount" property="amount"/>
+        <result column="create_date" property="createDate"/>
     </resultMap>
 
     <resultMap id="drawEntity" type="com.dndn.promotions.model.DrawEntity">
@@ -37,15 +38,19 @@
     </insert>
 
     <select id="getDrawResultList" resultMap="userDrawResultEntity">
-        SELECT u.*, d.amount
-        FROM devmanta.users u
-             JOIN devmanta.draw_result dr ON u.id = dr.user_id
-             JOIN devmanta.draw d ON dr.draw_id = d.id
-        UNION ALL
-        SELECT u.*, d.amount
-        FROM devmanta.users u
-             JOIN devmanta.draw_result_history drh ON u.id = drh.user_id
-             JOIN devmanta.draw d ON drh.draw_id = d.id
+        SELECT A.*
+        FROM(
+            SELECT u.id, u.contact, d.amount, dr.create_date
+            FROM devmanta.users u
+                 JOIN devmanta.draw_result dr ON u.id = dr.user_id
+                 JOIN devmanta.draw d ON dr.draw_id = d.id
+            UNION ALL
+            SELECT u.id, u.contact, d.amount, drh.create_date
+            FROM devmanta.users u
+                 JOIN devmanta.draw_result_history drh ON u.id = drh.user_id
+                 JOIN devmanta.draw d ON drh.draw_id = d.id
+        ) A
+        ORDER BY A.id asc, A.create_date desc
     </select>
 
     <select id="getDrawResultWithUserDetail" resultMap="userDrawResultEntity">
