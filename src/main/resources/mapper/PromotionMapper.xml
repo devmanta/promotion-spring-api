@@ -32,8 +32,8 @@
     </select>
 
     <insert id="insertUser" parameterType="com.dndn.promotions.model.UserEntity" useGeneratedKeys="true" keyProperty="id">
-      INSERT INTO devmanta.users(contact)
-      VALUES (#{contact})
+      INSERT INTO devmanta.users(contact, create_date)
+      VALUES (#{contact}, now())
     </insert>
 
     <select id="getDrawResultList" resultMap="userDrawResultEntity">
@@ -63,7 +63,7 @@
     </select>
 
     <insert id="insertDrawResult" parameterType="Map">
-        INSERT INTO devmanta.draw_result(user_id, draw_id) VALUES (#{userId}, #{drawId})
+        INSERT INTO devmanta.draw_result(user_id, draw_id, create_date) VALUES (#{userId}, #{drawId}, now())
     </insert>
 
     <update id="addUserDrawCntById" parameterType="com.dndn.promotions.model.UserEntity">

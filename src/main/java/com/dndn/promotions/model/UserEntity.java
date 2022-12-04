@@ -21,9 +21,11 @@ public class UserEntity {
 
     private Integer id;
     private String contact;
-    @ApiModelProperty(notes = "응모횟수")
+    @ApiModelProperty(notes = "응모횟수 / 총 응모횟수는 사용자당 4번 으로 제한")
     private Integer drawCnt;
-
-    private boolean isSoldOut;
+    @ApiModelProperty(notes = "당첨 소진 여부")
+    private boolean soldOut;
+    @ApiModelProperty(notes = "당첨인지 아닌지")
+    private boolean win;
 
 }

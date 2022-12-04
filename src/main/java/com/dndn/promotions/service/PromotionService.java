@@ -41,6 +41,7 @@ public class PromotionService {
         if(drawResultByUser != null) {
             //당첨 결과가 있으면 응모하면 안됨
             userFromDb.setSoldOut(isSoldOut);
+            userFromDb.setWin(false);
             return ResponseEntity.ok(userFromDb);
         }
 
@@ -50,7 +51,15 @@ public class PromotionService {
         userDrawResult.setSoldOut(isSoldOut);
 
         if(!isSoldOut) {
+            userDrawResult.setWin(true);
             userDrawResult = this.doDraw(userDrawResult);
+        } else {
+            Map<String, Integer> param = new HashMap<>();
+            param.put("userId", userDrawResult.getId());
+            param.put("drawId", 4);
+            promotionRepository.insertDrawResult(param);
+
+            userDrawResult.setWin(false);
         }
 
         if(userDrawResult == null) {
