@@ -58,7 +58,19 @@ public class PromotionController {
     @Value("${dndn.excel}")
     private String myNum;
 
+    @Operation(summary = "응모하기!!", description = "응모하기 버튼 클릭 시 호출!!"
+        + "<br /><br />requestBody: <strong>{contact : '암호화된 연락처'}</strong>   만 보내서 호출해주세요!!!<br /><br />")
     @PostMapping(value = "/draw")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "1. amount가 있고 <br />"
+                                                        + "    1-1. amount !=0 이라면 당첨금액 화면 보여주기<br />"
+                                                        + "    1-2. amount == 0(꽝꽝꽝) && soldOut == true 이면 당첨 소진된거!!<br />"
+                                                        + "    1-3. amount == 0(꽝꽝꽝) && soldOut == false면 당첨금액이 진짜 꽝인거~ 다시 응모하기 가능!!<br />"
+                                                        + "2. amount가 없고 <br />"
+                                                        + "    2-1. '이미 응모하셨네요'가 있는 공유하기 모달노출<br />"
+                                                        + "    2-2. amount가 없고 그리고 drawCnt > 4 면 더이상 카카오톡 공유 못하게!!  drawCnt < 4면 카톡 공유가능하게!!"),
+        @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR !! 내가 뭔가를 잘못했거나.. 요청값이 제대로 맞지 않아서 에러가 났거나..")
+    })
     public ResponseEntity<UserEntity> doUserDraw(HttpServletRequest request, @RequestBody UserEntity userEntity) throws Exception {
         return promotionService.doUserDraw(userEntity);
     }
@@ -121,7 +133,7 @@ public class PromotionController {
         }
     }
 
-    @Operation(summary = "카카오톡 공유하기 콜백 url", description = "카카오톡에서 공유 성공하면 호출할거..  공유하기 할때 serverCallbackArgs: {id: 사용자 id}, 만 넣어서 호출해주세요 !!!"
+    @Operation(summary = "카카오톡 공유하기 콜백 url", description = "카카오톡에서 공유 성공하면 호출할거..  공유하기 할때 <strong>serverCallbackArgs: {id: 사용자 id}</strong> 만 넣어서 호출해주세요 !!!"
         + "<br /><br />여기서 하는일: 카카오에서 보내준 userId 기준으로<br />"
         + "1. db에서 user 존재여부 확인<br />"
         + "2. user 당첨결과 삭제<br />"
