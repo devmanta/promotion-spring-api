@@ -29,4 +29,8 @@ public interface PromotionRepository {
     void insertDrawResult(Map<String, Integer> params);
 
     boolean isSoldOut();
+
+    void insertUserShare(String contact);
+    Map<String, Object> getUserShareByContact(String contact);
+    void deleteUserShareByContact(String contact);
 }

@@ -1,14 +1,11 @@
 package com.dndn.promotions.controller;
 
-import com.dndn.promotions.model.DrawEntity;
 import com.dndn.promotions.model.UserDrawResultEntity;
 import com.dndn.promotions.model.UserEntity;
 import com.dndn.promotions.repository.PromotionRepository;
 import com.dndn.promotions.service.PromotionService;
 import com.dndn.promotions.util.DrawUtils;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.io.File;
@@ -36,12 +33,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -74,6 +70,8 @@ public class PromotionController {
     public ResponseEntity<UserEntity> doUserDraw(HttpServletRequest request, @RequestBody UserEntity userEntity) throws Exception {
         return promotionService.doUserDraw(userEntity);
     }
+
+
 
     @GetMapping(value = "/excel")
     public ResponseEntity<InputStreamResource> downloadExcelForDrawResult() {
@@ -133,6 +131,8 @@ public class PromotionController {
         }
     }
 
+
+
     @Operation(summary = "카카오톡 공유하기 콜백 url", description = "카카오톡에서 공유 성공하면 호출할거..  공유하기 할때 <strong>serverCallbackArgs: {id: 사용자 id}</strong> 만 넣어서 호출해주세요 !!!"
         + "<br /><br />여기서 하는일: 카카오에서 보내준 userId 기준으로<br />"
         + "1. db에서 user 존재여부 확인<br />"
@@ -150,6 +150,36 @@ public class PromotionController {
             log.info("kakaoShareCallBack userFromDb is null OR userDrawCnt > 4, userVO={}", userFromRequestBody);
             log.info("==============================================================");
         }
+    }
+
+
+
+    @Operation(summary = "공유하기 클릭 시 호출", description = "카톡 공유하기 클릭 시, 기존 공유하기 성공 여부 삭제하는 api<br /><br />requestBody에 아래 처럼 호출해주세요!!!<br /><strong>{contact: 'awfwafwkejnwkf=='}</strong>")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "<strong>{success : true}</strong> 로 내려가긴 할텐데.. 기존 공유하기 성공 레코드 db 삭제 잘된거!"),
+        @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR !! 내가 뭔가를 잘못했거나.. 요청값이 제대로 맞지 않아서 에러가 났거나..")
+    })
+    @DeleteMapping(value = {"/share"})
+    public ResponseEntity<Map<String, Boolean>> deleteKakaoShareRecord(@RequestBody Map<String, String> reqBody) {
+        Map<String, Boolean> result = new HashMap<>();
+        result.put("success", true);
+        promotionService.deleteKakaoShareRecord(reqBody.get("contact"));
+        return ResponseEntity.ok(result);
+    }
+
+
+
+    @Operation(summary = "공유하기 성공여부 확인", description = "사용자가 카톡 공유 성공했는지 실패했는지 확인하는 api<br /><br />requestBody에 아래 처럼 호출해주세요!!!<br /><strong>{contact: 'awfwafwkejnwkf=='}</strong>")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "<strong>{success : true}</strong> 면 공유 성공! <strong>{success : false}</strong> 면 공유 아직 안된거(카톡이 callBack 아직 호출안한거)"),
+        @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR !! 내가 뭔가를 잘못했거나.. 요청값이 제대로 맞지 않아서 에러가 났거나..")
+    })
+    @PostMapping(value = {"/share"})
+    public ResponseEntity<Map<String, Boolean>> isKakaoShareSucceed(@RequestBody Map<String, String> reqBody) {
+        Map<String, Boolean> result = new HashMap<>();
+        boolean isSucceed = promotionService.isKakaoShareSucced(reqBody.get("contact"));
+        result.put("success", isSucceed);
+        return ResponseEntity.ok(result);
     }
 
 }

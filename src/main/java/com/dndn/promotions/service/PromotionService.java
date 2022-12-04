@@ -84,7 +84,7 @@ public class PromotionService {
         UserEntity userFromDb = promotionRepository.getUser(userFromRequestBody);
         if(userFromDb == null) {
             return false;
-        } else if(userFromDb.getDrawCnt() > 4) {
+        } else if(userFromDb.getDrawCnt() >= 4) {
             return false;
         }
 
@@ -93,6 +93,7 @@ public class PromotionService {
         promotionRepository.deductDrawWinnerCntById(drawResultByUserId.get("drawId"));
         promotionRepository.deleteDrawResultByUserId(userFromDb.getId());
 
+        promotionRepository.insertUserShare(userFromDb.getContact());
         return true;
     }
 
@@ -166,8 +167,14 @@ public class PromotionService {
         return null;
     }
 
+    public void deleteKakaoShareRecord(String contact) {
+        promotionRepository.deleteUserShareByContact(contact);
+    }
 
-
+    public boolean isKakaoShareSucced(String contact) {
+        Map<String, Object> userShareByContact = promotionRepository.getUserShareByContact(contact);
+        return userShareByContact != null;
+    }
 
     public void encryptUser(UserEntity user) throws Exception{
         user.setContact(aesUtils.encryptAES256(user.getContact()));

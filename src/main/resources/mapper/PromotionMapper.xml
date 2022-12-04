@@ -105,4 +105,18 @@
         SELECT IF(SUM(total) = SUM(winner_cnt), 1, 0) FROM devmanta.draw
     </select>
 
+    <insert id="insertUserShare">
+        INSERT INTO devmanta.user_share(contact, create_date) values(#{contact}, now())
+    </insert>
+
+    <select id="getUserShareByContact" resultType="Map">
+        SELECT contact, create_date as 'createDate'
+        FROM devmanta.user_share
+        WHERE contact = #{contact}
+    </select>
+
+    <delete id="deleteUserShareByContact">
+        DELETE FROM devmanta.user_share
+        WHERE contact= #{contact}
+    </delete>
 </mapper>
