@@ -73,7 +73,6 @@ public class PromotionController {
     }
 
 
-
     @GetMapping(value = "/excel")
     public ResponseEntity<InputStreamResource> downloadExcelForDrawResult() {
         try(Workbook workbook = new XSSFWorkbook()) {
@@ -101,19 +100,19 @@ public class PromotionController {
             workbook.write(fileOut);
             fileOut.close();
 
-            try (POIFSFileSystem fs = new POIFSFileSystem()) {
+            try(POIFSFileSystem fs = new POIFSFileSystem()) {
 
                 EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile);
                 Encryptor encryptor = info.getEncryptor();
                 encryptor.confirmPassword(myNum);
 
-                try (OPCPackage opc = OPCPackage.open(file, PackageAccess.READ_WRITE);
+                try(OPCPackage opc = OPCPackage.open(file, PackageAccess.READ_WRITE);
                     OutputStream os = encryptor.getDataStream(fs)) {
                     opc.save(os);
                 }
 
                 // Write out the encrypted version
-                try (FileOutputStream fos = new FileOutputStream(file)) {
+                try(FileOutputStream fos = new FileOutputStream(file)) {
                     fs.writeFilesystem(fos);
                 }
             }
@@ -134,13 +133,11 @@ public class PromotionController {
         }
     }
 
-
-
     @Operation(summary = "카카오톡 공유하기 콜백 url", description = "카카오톡에서 공유 성공하면 호출할거..  공유하기 할때 <strong>serverCallbackArgs: {id: 사용자 id}</strong> 만 넣어서 호출해주세요 !!!"
-        + "<br /><br />여기서 하는일: 카카오에서 보내준 userId 기준으로<br />"
-        + "1. db에서 user 존재여부 확인<br />"
-        + "2. user 당첨결과 삭제<br />"
-        + "3. user가 당첨되었던 당첨금액의 총 당첨자 수 -1")
+                                                                + "<br /><br />여기서 하는일: 카카오에서 보내준 userId 기준으로<br />"
+                                                                + "1. db에서 user 존재여부 확인<br />"
+                                                                + "2. user 당첨결과 삭제<br />"
+                                                                + "3. user가 당첨되었던 당첨금액의 총 당첨자 수 -1")
     @PostMapping(value = {"/kakao-share"})
     public void kakaoShareCallBack(@RequestBody UserEntity userFromRequestBody) {
         log.info("==============================================================");
@@ -154,22 +151,6 @@ public class PromotionController {
             log.info("==============================================================");
         }
     }
-
-
-
-//    @Operation(summary = "공유하기 클릭 시 호출", description = "카톡 공유하기 클릭 시, 기존 공유하기 성공 여부 삭제하는 api<br /><br />requestBody에 아래 처럼 호출해주세요!!!<br /><strong>{contact: 'awfwafwkejnwkf=='}</strong>")
-//    @ApiResponses({
-//        @ApiResponse(responseCode = "200", description = "<strong>{success : true}</strong> 로 내려가긴 할텐데.. 기존 공유하기 성공 레코드 db 삭제 잘된거!"),
-//        @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR !! 내가 뭔가를 잘못했거나.. 요청값이 제대로 맞지 않아서 에러가 났거나..")
-//    })
-//    @DeleteMapping(value = {"/share"})
-//    public ResponseEntity<Map<String, Boolean>> deleteKakaoShareRecord(@RequestBody Map<String, String> reqBody) {
-//        Map<String, Boolean> result = new HashMap<>();
-//        result.put("success", true);
-//        promotionService.deleteKakaoShareRecord(reqBody.get("contact"));
-//        return ResponseEntity.ok(result);
-//    }
-
 
 
     @Operation(summary = "공유하기 성공여부 확인", description = "사용자가 카톡 공유 성공했는지 실패했는지 확인하는 api<br /><br />requestBody에 아래 처럼 호출해주세요!!!<br /><strong>{contact: 'awfwafwkejnwkf=='}</strong>")

@@ -24,7 +24,7 @@
 
     <select id="getUser" resultMap="userEntity" parameterType="com.dndn.promotions.model.UserEntity">
         SELECT id, contact, draw_cnt
-        FROM devmanta.users
+        FROM dndn.users
         <where>
             <if test="contact != null">
                 AND contact = #{contact}
@@ -33,7 +33,7 @@
     </select>
 
     <insert id="insertUser" parameterType="com.dndn.promotions.model.UserEntity" useGeneratedKeys="true" keyProperty="id">
-      INSERT INTO devmanta.users(contact, create_date)
+      INSERT INTO dndn.users(contact, create_date)
       VALUES (#{contact}, now())
     </insert>
 
@@ -41,93 +41,99 @@
         SELECT A.*
         FROM(
             SELECT u.id, u.contact, d.amount, dr.create_date
-            FROM devmanta.users u
-                 JOIN devmanta.draw_result dr ON u.id = dr.user_id
-                 JOIN devmanta.draw d ON dr.draw_id = d.id
+            FROM dndn.users u
+                 JOIN dndn.draw_result dr ON u.id = dr.user_id
+                 JOIN dndn.draw d ON dr.draw_id = d.id
             UNION ALL
             SELECT u.id, u.contact, d.amount, drh.create_date
-            FROM devmanta.users u
-                 JOIN devmanta.draw_result_history drh ON u.id = drh.user_id
-                 JOIN devmanta.draw d ON drh.draw_id = d.id
+            FROM dndn.users u
+                 JOIN dndn.draw_result_history drh ON u.id = drh.user_id
+                 JOIN dndn.draw d ON drh.draw_id = d.id
         ) A
         ORDER BY A.id asc, A.create_date desc
     </select>
 
     <select id="getDrawResultWithUserDetail" resultMap="userDrawResultEntity">
         SELECT u.*, d.amount
-        FROM devmanta.users u
-        JOIN devmanta.draw_result dr ON u.id = dr.user_id
-        JOIN devmanta.draw d ON dr.draw_id = d.id
+        FROM dndn.users u
+        JOIN dndn.draw_result dr ON u.id = dr.user_id
+        JOIN dndn.draw d ON dr.draw_id = d.id
         WHERE u.id = #{userId}
     </select>
 
     <select id="getDrawResultByUserId" resultType="Map">
         SELECT user_id as 'userId', draw_id as 'drawId'
-        FROM devmanta.draw_result
+        FROM dndn.draw_result
         WHERE user_id = #{userId}
     </select>
 
     <insert id="insertDrawResult" parameterType="Map">
-        INSERT INTO devmanta.draw_result(user_id, draw_id, create_date) VALUES (#{userId}, #{drawId}, now())
+        INSERT INTO dndn.draw_result(user_id, draw_id, create_date) VALUES (#{userId}, #{drawId}, now())
     </insert>
 
     <update id="addUserDrawCntById" parameterType="com.dndn.promotions.model.UserEntity">
-        UPDATE devmanta.users
+        UPDATE dndn.users
         SET draw_cnt = draw_cnt + 1
         WHERE id = #{id}
+        <selectKey keyColumn="draw_cnt" keyProperty="drawCnt" resultType="java.lang.Integer" order="AFTER">
+            SELECT
+                draw_cnt
+            FROM	dndn.users
+            WHERE	id = #{id}
+        </selectKey>
     </update>
 
     <delete id="deleteDrawResultByUserId">
-        DELETE FROM devmanta.draw_result
+        DELETE FROM dndn.draw_result
         WHERE user_id = #{userId}
     </delete>
 
     <select id="getDrawtById" resultMap="drawEntity">
         SELECT id, amount, total, winner_cnt
-        FROM devmanta.draw
+        FROM dndn.draw
         WHERE id = #{id}
     </select>
 
     <select id="getDrawList" resultMap="drawEntity">
         SELECT id, amount, total, winner_cnt
-        FROM devmanta.draw
+        FROM dndn.draw
         ORDER BY id
     </select>
 
     <update id="addDrawWinnerCntById">
-        UPDATE devmanta.draw
+        UPDATE dndn.draw
         SET winner_cnt = winner_cnt + 1
         WHERE id = #{drawId}
     </update>
 
     <update id="deductDrawWinnerCntById">
-        UPDATE devmanta.draw
+        UPDATE dndn.draw
         SET winner_cnt = winner_cnt - 1
         WHERE id = #{drawId}
     </update>
 
     <select id="isSoldOut" resultType="boolean">
-        SELECT IF(SUM(total) = SUM(winner_cnt), 1, 0) FROM devmanta.draw
+        SELECT IF(SUM(total) = SUM(winner_cnt), 1, 0) FROM dndn.draw
     </select>
 
     <insert id="insertUserShare">
-        INSERT INTO devmanta.user_share(contact, create_date) values(#{contact}, now())
+        INSERT INTO dndn.user_share(contact, create_date) values(#{contact}, now())
     </insert>
 
     <select id="getUserShareByContact" resultType="Map">
         SELECT contact, create_date as 'createDate'
-        FROM devmanta.user_share
+        FROM dndn.user_share
         WHERE contact = #{contact}
     </select>
 
     <delete id="deleteUserShareByContact">
-        DELETE FROM devmanta.user_share
+        DELETE FROM dndn.user_share
         WHERE contact= #{contact}
     </delete>
 
     <insert id="insertDrawResultHistory">
-        INSERT INTO devmanta.draw_result_history
-        SELECT * from devmanta.draw_result WHERE user_id = #{userId}
+        INSERT INTO dndn.draw_result_history
+        SELECT * from dndn.draw_result WHERE user_id = #{userId}
     </insert>
 
 </mapper>

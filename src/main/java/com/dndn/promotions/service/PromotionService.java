@@ -34,6 +34,7 @@ public class PromotionService {
             userFromDb = new UserEntity();
             userFromDb.setContact(userEntity.getContact());
             promotionRepository.insertUser(userFromDb);
+            userFromDb.setDrawCnt(0); // drawCnt 초기화
         }
 
         promotionRepository.deleteUserShareByContact(userEntity.getContact()); // 카톡 공유하기 성공 레코드 지우기
@@ -58,7 +59,7 @@ public class PromotionService {
         } else {
             Map<String, Integer> param = new HashMap<>();
             param.put("userId", userDrawResult.getId());
-            param.put("drawId", 4);
+            param.put("drawId", 4); // 당첨 소진 시, 무조건 0원 당첨
             promotionRepository.insertDrawResult(param);
 
             userDrawResult.setWin(false);
@@ -92,7 +93,7 @@ public class PromotionService {
 
         Map<String, Integer> drawResultByUserId = promotionRepository.getDrawResultByUserId(userFromDb.getId());
         promotionRepository.insertDrawResultHistory(drawResultByUserId.get("userId"));
-        
+
         promotionRepository.deductDrawWinnerCntById(drawResultByUserId.get("drawId"));
         promotionRepository.deleteDrawResultByUserId(userFromDb.getId());
 
@@ -100,7 +101,7 @@ public class PromotionService {
         return true;
     }
 
-//        당첨 로직 :
+    //        당첨 로직 :
 //        전체 인원 중 당첨 확률로 계산해 당첨
 //        660,000원 (10/1,060, 약 0.9%)
 //        66,000원 (50/1,060, 약 4.7%)
@@ -164,22 +165,20 @@ public class PromotionService {
 
             promotionRepository.addUserDrawCntById(drawResultByUser);
             promotionRepository.addDrawWinnerCntById(jackpotResult.getId());
+
+            log.info("PromotionService.doDraw.drawResultByUser={}", drawResultByUser);
             return drawResultByUser;
         }
 
         return null;
     }
 
-//    public void deleteKakaoShareRecord(String contact) {
-//        promotionRepository.deleteUserShareByContact(contact);
-//    }
-
     public boolean isKakaoShareSucced(String contact) {
         Map<String, Object> userShareByContact = promotionRepository.getUserShareByContact(contact);
         return userShareByContact != null;
     }
 
-    public void encryptUser(UserEntity user) throws Exception{
+    public void encryptUser(UserEntity user) throws Exception {
         user.setContact(aesUtils.encryptAES256(user.getContact()));
     }
 
