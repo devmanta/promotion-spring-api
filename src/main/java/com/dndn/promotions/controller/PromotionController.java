@@ -139,15 +139,24 @@ public class PromotionController {
                                                                 + "2. user 당첨결과 삭제<br />"
                                                                 + "3. user가 당첨되었던 당첨금액의 총 당첨자 수 -1")
     @PostMapping(value = {"/kakao-share"})
-    public void kakaoShareCallBack(@RequestBody UserEntity userFromRequestBody) {
+//    public void kakaoShareCallBack(@RequestBody UserEntity userFromRequestBody) {
+    public void kakaoShareCallBack(@RequestBody Map<String, Object> requestBody) {
         log.info("==============================================================");
-        log.info("kakaoShareCallBack CALL START, userVO={}", userFromRequestBody);
+        log.info("kakaoShareCallBack CALL START, requestBodyFromKakaoTalk={}", requestBody);
         log.info("==============================================================");
 
-        boolean isSucceed = promotionService.removeDrawResultAsUserSharedByKakaoTalk(userFromRequestBody);
-        if(!isSucceed) {
+        if(!"MemoChat".equals(requestBody.get("CHAT_TYPE"))) {
+            UserEntity userFromRequestBody = new UserEntity();
+            userFromRequestBody.setContact(String.valueOf(requestBody.get("contact")));
+            boolean isSucceed = promotionService.removeDrawResultAsUserSharedByKakaoTalk(userFromRequestBody);
+            if(!isSucceed) {
+                log.info("==============================================================");
+                log.info("kakaoShareCallBack userFromDb is null OR userDrawCnt > 4, userVO={}", userFromRequestBody);
+                log.info("==============================================================");
+            }
+        } else{
             log.info("==============================================================");
-            log.info("kakaoShareCallBack userFromDb is null OR userDrawCnt > 4, userVO={}", userFromRequestBody);
+            log.info("kakaoShareCallBack user shared to him/herself {}", requestBody);
             log.info("==============================================================");
         }
     }
