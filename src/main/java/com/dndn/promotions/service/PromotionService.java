@@ -150,6 +150,10 @@ public class PromotionService {
 
             // 당첨진행 고고
             int remainCnt = draw.getTotal() - draw.getWinnerCnt(); // 남은 당첨 숫자
+            if(remainCnt == 0) {
+                continue;
+            }
+            
             double r = (double) remainCnt / (double) denominator;
             winProbability[i] = (int) Math.round(r * 100);
 
