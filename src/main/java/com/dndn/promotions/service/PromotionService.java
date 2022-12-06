@@ -44,9 +44,17 @@ public class PromotionService {
 
 //        당첨이력이 있고, drawCnt < 4 이고, 카카오톡 공유하기가 없다면
 //        win: true
-
-
-
+        if(userFromDb != null && userFromDb.getDrawCnt() < 4) {
+            Map<String, Object> r = promotionRepository.getUserShareByContact(userFromDb.getContact());
+            if(r == null) {
+                Map<String, Integer> dr = promotionRepository.getDrawResultByUserId(userFromDb.getId());
+                if(dr != null) {
+                    UserEntity response = new UserEntity();
+                    response.setWin(true);
+                    return ResponseEntity.ok(response);
+                }
+            }
+        }
 
         boolean isSoldOut = promotionRepository.isSoldOut();
         if(userFromDb == null) {
