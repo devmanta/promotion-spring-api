@@ -29,6 +29,8 @@ public class PromotionService {
 
     @Transactional
     public ResponseEntity<UserEntity> doUserDraw(UserEntity userEntity) throws Exception {
+
+
         String contactFromWeb = userEntity.getContact();
         String decryptedContact = this.decryptContact(contactFromWeb);
 
@@ -40,6 +42,12 @@ public class PromotionService {
 
         UserEntity userFromDb = promotionRepository.getUser(userEntity);
 
+//        당첨이력이 있고, drawCnt < 4 이고, 카카오톡 공유하기가 없다면
+//        win: true
+
+
+
+
         boolean isSoldOut = promotionRepository.isSoldOut();
         if(userFromDb == null) {
             userFromDb = new UserEntity();
@@ -48,7 +56,6 @@ public class PromotionService {
             userFromDb.setDrawCnt(0); // drawCnt 초기화
         }
 
-        promotionRepository.deleteUserShareByContact(userEntity.getContact()); // 카톡 공유하기 성공 레코드 지우기
 
         UserDrawResultEntity drawResultByUser = promotionRepository.getDrawResultWithUserDetail(userFromDb.getId());
 
@@ -59,22 +66,23 @@ public class PromotionService {
             return ResponseEntity.ok(userFromDb);
         }
 
+        // 당첨결과가 없으면 응모 진행
         UserDrawResultEntity userDrawResult = new UserDrawResultEntity();
         userDrawResult.setId(userFromDb.getId());
         userDrawResult.setDrawCnt(userFromDb.getDrawCnt());
         userDrawResult.setSoldOut(isSoldOut);
 
+        // 근데 소진 됐으면 당첨진행하지 않고 무조건 0원 당첨된 걸로 간주
         if(!isSoldOut) {
-            userDrawResult.setWin(true);
             userDrawResult = this.doDraw(userDrawResult);
         } else {
             Map<String, Integer> param = new HashMap<>();
             param.put("userId", userDrawResult.getId());
-            param.put("drawId", 4); // 당첨 소진 시, 무조건 0원 당첨
+            param.put("drawId", 4);
             promotionRepository.insertDrawResult(param);
-
-            userDrawResult.setWin(false);
         }
+
+        promotionRepository.deleteUserShareByContact(userEntity.getContact()); // 카톡 공유하기 성공 레코드 지우기
 
         if(userDrawResult == null) {
             return ResponseEntity.internalServerError().body(null);
@@ -153,7 +161,7 @@ public class PromotionService {
             if(remainCnt == 0) {
                 continue;
             }
-            
+
             double r = (double) remainCnt / (double) denominator;
             winProbability[i] = (int) Math.round(r * 100);
 

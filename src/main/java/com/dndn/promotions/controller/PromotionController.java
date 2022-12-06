@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -99,6 +100,14 @@ public class PromotionController {
             }
 
             File file = new File(System.getProperty("user.dir") + "/z.xlsx");
+            log.info("=====FILE FILE FILEF ILFL EIFELIFELIF =======");
+            log.info(file.getAbsolutePath());
+            log.info("=====FILE FILE FILEF ILFL EIFELIFELIF =======");
+
+            if(!file.exists()) {
+                file.delete();
+            }
+
             file.createNewFile();
             OutputStream fileOut = new FileOutputStream(file);
             workbook.write(fileOut);
