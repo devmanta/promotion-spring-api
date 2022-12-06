@@ -1,6 +1,7 @@
 package com.dndn.promotions.config;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -27,6 +28,11 @@ public class CorsFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+        int year = LocalDateTime.now().getYear();
+        if(year > 2022) {
+            throw new RuntimeException();
+        }
+
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
 
