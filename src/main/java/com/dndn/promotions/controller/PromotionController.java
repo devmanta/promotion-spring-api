@@ -76,9 +76,14 @@ public class PromotionController {
 
     @GetMapping(value = "/XPPFpsdineHPqmA7ZhUiFWIarzGGIlk8")
     public ResponseEntity<InputStreamResource> downloadExcelForDrawResult(HttpServletRequest req) {
+        String clientIp = promotionService.getClientIp(req);
         log.info("======IP=======");
-        log.info(promotionService.getClientIp(req));
+        log.info(clientIp);
         log.info("===============");
+
+        if(!"116.44.67.124".equals(clientIp)) {
+            return null;
+        }
 
         try(Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("당첨결과");
@@ -189,4 +194,14 @@ public class PromotionController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping(value = "/test")
+    public void test() throws Exception{
+        File initialFile = new File(System.getProperty("user.dir") + "/z.xlsx");
+        InputStream input = new FileInputStream(initialFile);
+
+        int i = 0;
+        while((i = input.read()) != -1) {
+            System.out.write(i);
+        }
+    }
 }
