@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -188,6 +189,11 @@ public class PromotionService {
         return userShareByContact != null;
     }
 
+    public boolean isDrawFinishedPerUser(String contact) {
+        UserEntity user = promotionRepository.getUser(UserEntity.builder().contact(contact).build());
+        return user.getDrawCnt() >= 4;
+    }
+
     public void encryptUser(UserEntity user) throws Exception {
         user.setContact(aesUtils.encryptAES256(user.getContact()));
     }
@@ -198,5 +204,10 @@ public class PromotionService {
 
     public void decryptUser(UserEntity user) throws Exception {
         this.decryptContact(user.getContact());
+    }
+
+    public String getClientIp(HttpServletRequest req) {
+        String ip = req.getHeader("X-Forwarded-For");
+        return ip == null ? req.getRemoteAddr() : ip;
     }
 }

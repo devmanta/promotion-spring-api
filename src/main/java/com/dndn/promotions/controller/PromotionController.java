@@ -73,8 +73,12 @@ public class PromotionController {
     }
 
 
-    @GetMapping(value = "/excel")
-    public ResponseEntity<InputStreamResource> downloadExcelForDrawResult() {
+    @GetMapping(value = "/XPPFpsdineHPqmA7ZhUiFWIarzGGIlk8")
+    public ResponseEntity<InputStreamResource> downloadExcelForDrawResult(HttpServletRequest req) {
+        log.info("======IP=======");
+        log.info(promotionService.getClientIp(req));
+        log.info("===============");
+
         try(Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("당첨결과");
             int rowNo = 0;
@@ -170,8 +174,9 @@ public class PromotionController {
     @PostMapping(value = {"/share"})
     public ResponseEntity<Map<String, Boolean>> isKakaoShareSucceed(@RequestBody Map<String, String> reqBody) {
         Map<String, Boolean> result = new HashMap<>();
-        boolean isSucceed = promotionService.isKakaoShareSucced(reqBody.get("contact"));
-        result.put("success", isSucceed);
+        String contact = reqBody.get("contact");
+        result.put("success", promotionService.isKakaoShareSucced(contact));
+        result.put("done", promotionService.isDrawFinishedPerUser(contact));
         return ResponseEntity.ok(result);
     }
 
