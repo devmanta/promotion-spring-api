@@ -9,6 +9,7 @@ import com.dndn.promotions.util.DrawUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,16 @@ public class PromotionService {
     private final DrawUtils drawUtils;
 
     @Transactional
-    public ResponseEntity<UserEntity> doUserDraw(UserEntity userEntity) {
+    public ResponseEntity<UserEntity> doUserDraw(UserEntity userEntity) throws Exception {
+        String contactFromWeb = userEntity.getContact();
+        String decryptedContact = this.decryptContact(contactFromWeb);
+
+        String pattern = "^[0-9]*$"; // 숫자만
+        boolean result = Pattern.matches(pattern, decryptedContact);
+        if( !(decryptedContact.startsWith("01") && result) ) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
         UserEntity userFromDb = promotionRepository.getUser(userEntity);
 
         boolean isSoldOut = promotionRepository.isSoldOut();
@@ -182,7 +192,11 @@ public class PromotionService {
         user.setContact(aesUtils.encryptAES256(user.getContact()));
     }
 
+    public String decryptContact(String contact) throws Exception {
+        return aesUtils.decryptAES256(contact);
+    }
+
     public void decryptUser(UserEntity user) throws Exception {
-        user.setContact(aesUtils.decryptAES256(user.getContact()));
+        this.decryptContact(user.getContact());
     }
 }
