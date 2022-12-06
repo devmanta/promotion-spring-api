@@ -41,10 +41,11 @@ public class PromotionService {
         }
 
         UserEntity userFromDb = promotionRepository.getUser(userEntity);
+        boolean isSoldOut = promotionRepository.isSoldOut();
 
-//        당첨이력이 있고, drawCnt < 4 이고, 카카오톡 공유하기가 없다면
+//        당첨이력이 있고, drawCnt < 4 이고, 카카오톡 공유하기가 없고, 소진이 아니라면
 //        win: true
-        if(userFromDb != null && userFromDb.getDrawCnt() < 4) {
+        if(userFromDb != null && userFromDb.getDrawCnt() < 4 && !isSoldOut) {
             Map<String, Object> r = promotionRepository.getUserShareByContact(userFromDb.getContact());
             if(r == null) {
                 Map<String, Integer> dr = promotionRepository.getDrawResultByUserId(userFromDb.getId());
@@ -56,7 +57,6 @@ public class PromotionService {
             }
         }
 
-        boolean isSoldOut = promotionRepository.isSoldOut();
         if(userFromDb == null) {
             userFromDb = new UserEntity();
             userFromDb.setContact(userEntity.getContact());
@@ -69,9 +69,8 @@ public class PromotionService {
 
         if(drawResultByUser != null) {
             //당첨 결과가 있으면 응모하면 안됨
-            userFromDb.setSoldOut(isSoldOut);
-            userFromDb.setWin(false);
-            return ResponseEntity.ok(userFromDb);
+            drawResultByUser.setSoldOut(isSoldOut);
+            return ResponseEntity.ok(drawResultByUser);
         }
 
         // 당첨결과가 없으면 응모 진행

@@ -24,7 +24,7 @@ public class UserEntity {
     @ApiModelProperty(notes = "응모횟수 / 총 응모횟수는 사용자당 4번 으로 제한")
     private Integer drawCnt;
     @ApiModelProperty(notes = "당첨 소진 여부")
-    private boolean soldOut;
+    private Boolean soldOut;
     @ApiModelProperty(notes = "당첨인지 아닌지")
     private boolean win;
 
