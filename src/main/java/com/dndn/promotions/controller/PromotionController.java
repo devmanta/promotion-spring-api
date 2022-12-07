@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -75,14 +76,15 @@ public class PromotionController {
 
 
     @GetMapping(value = "/XPPFpsdineHPqmA7ZhUiFWIarzGGIlk8")
-    public ResponseEntity<InputStreamResource> downloadExcelForDrawResult(HttpServletRequest req) {
-        String clientIp = promotionService.getClientIp(req);
+    public void downloadExcelForDrawResult(HttpServletRequest request, HttpServletResponse response) {
+//    public ResponseEntity<InputStreamResource> downloadExcelForDrawResult(HttpServletRequest req) {
+        String clientIp = promotionService.getClientIp(request);
         log.info("======IP=======");
         log.info(clientIp);
         log.info("===============");
 
         if(!"116.44.67.124".equals(clientIp)) {
-            return null;
+            return;
         }
 
         try(Workbook workbook = new XSSFWorkbook()) {
@@ -99,55 +101,59 @@ public class PromotionController {
             for(UserDrawResultEntity r : list) {
                 Row row = sheet.createRow(rowNo++);
                 row.createCell(0).setCellValue(r.getId());
-                row.createCell(1).setCellValue(r.getContact());
+                row.createCell(1).setCellValue(promotionService.decryptContact(r.getContact()));
                 row.createCell(2).setCellValue(r.getAmount());
                 row.createCell(3).setCellValue(r.getCreateDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             }
 
-            File file = new File(System.getProperty("user.dir") + "/z.xlsx");
-            log.info("=====FILE FILE FILEF ILFL EIFELIFELIF =======");
-            log.info(file.getAbsolutePath());
-            log.info("=====FILE FILE FILEF ILFL EIFELIFELIF =======");
+            response.setContentType("ms-vnd/excel");
+            response.setHeader("Content-Disposition", "attachment;filename=draw_result.xlsx");
 
-            if(!file.exists()) {
-                file.delete();
-            }
+            workbook.write(response.getOutputStream());
 
-            file.createNewFile();
-            OutputStream fileOut = new FileOutputStream(file);
-            workbook.write(fileOut);
-            fileOut.close();
-
-            try(POIFSFileSystem fs = new POIFSFileSystem()) {
-
-                EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile);
-                Encryptor encryptor = info.getEncryptor();
-                encryptor.confirmPassword(myNum);
-
-                try(OPCPackage opc = OPCPackage.open(file, PackageAccess.READ_WRITE);
-                    OutputStream os = encryptor.getDataStream(fs)) {
-                    opc.save(os);
-                }
-
-                // Write out the encrypted version
-                try(FileOutputStream fos = new FileOutputStream(file)) {
-                    fs.writeFilesystem(fos);
-                }
-            }
-
-            InputStream in = new FileInputStream(file);
-            file.delete();
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Content-Disposition", "attachment;filename=draw_result.xlsx");
-
-            return ResponseEntity
-                .ok()
-                .headers(headers)
-                .body(new InputStreamResource(in));
+//            File file = new File(System.getProperty("user.dir") + "/z.xlsx");
+//            log.info("=====FILE FILE FILEF ILFL EIFELIFELIF =======");
+//            log.info(file.getAbsolutePath());
+//            log.info("=====FILE FILE FILEF ILFL EIFELIFELIF =======");
+//
+//            if(!file.exists()) {
+//                file.delete();
+//            }
+//
+//            file.createNewFile();
+//            OutputStream fileOut = new FileOutputStream(file);
+//            workbook.write(fileOut);
+//            fileOut.close();
+//
+//            try(POIFSFileSystem fs = new POIFSFileSystem()) {
+//
+//                EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile);
+//                Encryptor encryptor = info.getEncryptor();
+//                encryptor.confirmPassword(myNum);
+//
+//                try(OPCPackage opc = OPCPackage.open(file, PackageAccess.READ_WRITE);
+//                    OutputStream os = encryptor.getDataStream(fs)) {
+//                    opc.save(os);
+//                }
+//
+//                // Write out the encrypted version
+//                try(FileOutputStream fos = new FileOutputStream(file)) {
+//                    fs.writeFilesystem(fos);
+//                }
+//            }
+//
+//            InputStream in = new FileInputStream(file);
+//            file.delete();
+//
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.add("Content-Disposition", "attachment;filename=draw_result.xlsx");
+//
+//            return ResponseEntity
+//                .ok()
+//                .headers(headers)
+//                .body(new InputStreamResource(in));
         } catch(Exception e) {
             log.error("excelDownload ERROR", e);
-            return null;
         }
     }
 
